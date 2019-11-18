@@ -1,9 +1,10 @@
-from os import listdir, makedirs
+from os import makedirs
 from os.path import exists
 
 
-def my_print(arg):
-    print(arg)
+def my_print(arg, on=True):
+    if on:
+        print(arg)
 
 def mkdir(path_to_create):
     if not exists(path_to_create):

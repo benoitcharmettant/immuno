@@ -1,15 +1,14 @@
 import pydicom
-from matplotlib.pyplot import imsave, subplots, show, savefig
+from matplotlib.pyplot import subplots, show, savefig
 import matplotlib.patches as patches
-from utils.tools import my_print
 
 
 def read_dicom(path, image_only=True):
     ds = pydicom.dcmread(path)
+    image = ds.pixel_array / 255
     if image_only:
-        image = ds.pixel_array
-        return image / 255
-    return ds
+        return image
+    return image, ds
 
 
 def anonymize_dicom(dicom_image):
@@ -18,24 +17,8 @@ def anonymize_dicom(dicom_image):
     :param dicom_image: raw dicom image HxWxC
     :return: anonymize image as an array
     """
+
     return dicom_image[70:, :, :]
-
-
-def anonymize_batch(ls_src, ls_targets):
-    """
-    Anonymize a batch of dicom image to png images
-    :param ls_src: list of paths of source dicom images
-    :param ls_targets: list of paths of target png images
-    """
-
-    assert len(ls_src) == len(ls_targets)
-
-    for i, src in enumerate(ls_src):
-        raw_image = read_dicom(src)
-        anonymize_image = anonymize_dicom(raw_image)
-
-        imsave(ls_targets[i], anonymize_image)
-        my_print("Saving {} into {}".format(src, ls_targets[i]))
 
 
 def show_box(image, coord, shape, save=None):
