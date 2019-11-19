@@ -1,7 +1,6 @@
 from os.path import basename
 
 from matplotlib.pyplot import imsave
-from nibabel.pydicom_compat import pydicom
 
 from utils.image import read_dicom, anonymize_dicom
 from utils.tools import my_print

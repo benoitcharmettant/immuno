@@ -6,6 +6,7 @@ def my_print(arg, on=True):
     if on:
         print(arg)
 
+
 def mkdir(path_to_create):
     if not exists(path_to_create):
         makedirs(path_to_create)
