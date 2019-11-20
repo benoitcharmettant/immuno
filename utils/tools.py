@@ -13,3 +13,8 @@ def mkdir(path_to_create):
         my_print("Creating path: {}".format(path_to_create))
     else:
         my_print("Already exists: {}".format(path_to_create))
+
+
+def date_to_str(date):
+    date_str = "{} / {} / {}".format(date.day, date.month, date.year)
+    return date_str

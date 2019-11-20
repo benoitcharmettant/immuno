@@ -7,10 +7,11 @@ from dataset.patient import Patient
 
 
 class Protocol(object):
-    def __init__(self, path_directory, path_metadata):
+    def __init__(self, path_directory, path_metadata, name):
         super()
         self.dir_path = path_directory
         self.excel_path = path_metadata
+        self.name = name
 
         self.patients_names = listdir(join(self.dir_path, 'images'))
         self._xl = ExcelFile(self.excel_path)
@@ -31,3 +32,27 @@ class Protocol(object):
 
     def get_patient_meta_data(self, patient):
         return self._xl.parse(patient.name, header=None)
+
+    def get_nb_patients(self):
+        return len(self.ls_patients)
+
+    def get_nb_tumors(self):
+        return len(self.ls_tumors)
+
+    def get_nb_images(self):
+        nb_images = 0
+        for tumor in self.ls_tumors:
+            nb_images += tumor.get_nb_images()
+
+        return nb_images
+
+    def get_tumors_stats(self):
+        control = 0
+        injected = 0
+
+        for tumor in self.ls_tumors:
+            if tumor.is_injected():
+                injected += 1
+            else:
+                control +=1
+        return control, injected
