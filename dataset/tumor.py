@@ -17,12 +17,13 @@ class Tumor(object):
 
         self.patient.protocol.add_tumor(self)
 
-    def new_image(self, path_image, date, machine):
+    def new_image(self, path_image, date, machine, dim):
         image = imread(path_image)
 
         new_image = {'image': image,
                      'date': date,
                      'machine': machine,
+                     'dim':dim,
                      'path': path_image}
 
         self.ls_images[basename(path_image)] = new_image
@@ -39,6 +40,7 @@ class Tumor(object):
         return len(self.ls_images)
 
     def display(self, figsize=None):
+        # TODO: Order the way exams are display when there are more than 10 exams
         ls_exams = self.get_exams()
 
         for exam in list(ls_exams.values()):
@@ -60,12 +62,14 @@ class Tumor(object):
     def get_exams(self):
         exams = {}
 
-        for image in list(self.ls_images.values()):
+        ordered_exams = list(self.ls_images.values())
+        ordered_exams.sort(key=lambda x: x['date'])
+
+        for image in ordered_exams:
             if image['date'] in exams:
                 exams[image['date']].append(image)
             else:
                 exams[image['date']] = [image]
-
         return exams
 
     def get_last_injection(self, image):

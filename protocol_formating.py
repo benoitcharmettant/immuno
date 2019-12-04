@@ -1,4 +1,4 @@
-from os.path import join, abspath
+from os.path import join
 from os import listdir
 
 from utils.data import anonymize_patient
@@ -6,8 +6,8 @@ from utils.tools import mkdir, my_print
 
 
 def main():
-    SRC_PATH = "//nas-01/BIOMAPS/Projets/Benoit CHARMETTANT/Données_immunothérapies/MK1454/donnees"
-    TARGET_PATH = "C:/Users/b_charmettant/data/immuno/MK1454"
+    SRC_PATH = "C:/Users/b_charmettant/Desktop/Données_immunothérapies/LYTIX/donnees"
+    TARGET_PATH = "C:/Users/b_charmettant/data/immuno/LYTIX"
 
     my_print(SRC_PATH)
 

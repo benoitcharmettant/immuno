@@ -55,7 +55,7 @@ def anonymize_patient(ls_src, ls_targets):
                 imsave(ls_targets[i].replace('_ab', '_b'), image_b)
                 my_print("Saving {} into {}".format(src, ls_targets[i].replace('_ab', '_b')), on=False)
 
-            elif name_dicom.split('_')[-1] in ['a', 'b', 'c']:
+            elif name_dicom.split('_')[-1] in ['a', 'b', 'c', 'd']:
                 imsave(ls_targets[i], anonymize_image)
                 my_print("Saving {} into {}".format(src, ls_targets[i]), on=False)
             else:

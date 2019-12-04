@@ -1,9 +1,13 @@
+import sys
+
+sys.path.append("../")
+
 from utils.tools import mkdir
-from utils.image import anonymize_batch
+from utils.data import anonymize_batch
 from os import listdir
 from os.path import join
 
-path = 'C:/Users/b_charmettant/Desktop/projet_preliminaire'
+path = 'C:/Users/b_charmettant/Desktop/Données_immunothérapies/LYTIX/donnees/'
 ls_image = []
 
 for fname in listdir(path):
