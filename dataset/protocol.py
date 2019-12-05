@@ -13,7 +13,7 @@ class Protocol(object):
         self.excel_path = path_metadata
         self.name = name
 
-        self.patients_names = listdir(join(self.dir_path, 'images'))
+        self.patients_names = sorted(listdir(join(self.dir_path, 'images')))
         self._xl = ExcelFile(self.excel_path)
 
         self.ls_patients = []

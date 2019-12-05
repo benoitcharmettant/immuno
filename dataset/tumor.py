@@ -20,11 +20,17 @@ class Tumor(object):
     def new_image(self, path_image, date, machine, dim):
         image = imread(path_image)
 
+        image_name = basename(path_image).split('.')[0]
+
         new_image = {'image': image,
                      'date': date,
                      'machine': machine,
                      'dim':dim,
-                     'path': path_image}
+                     'path': path_image,
+                     'nom_image': image_name,
+                     'tumor': self.name,
+                     'patient': self.patient.name,
+                     'protocole': self.patient.protocol.name}
 
         self.ls_images[basename(path_image)] = new_image
 
