@@ -37,8 +37,8 @@ class Patch_Classifier_Dataset(Dataset):
                         for image in exam:
 
                             ls_patches_exam = tumor.get_patches(image, self.patch_size)
-                            # TODO: Les patches ne sont pas ajoutés dans self.patches ! A fixer !
-                            if ls_patches_exam is not None:
+                            if ls_patches_exam is not []:
+
                                 for patch in ls_patches_exam:
                                     self.new_patch(patch, label_exam)
 

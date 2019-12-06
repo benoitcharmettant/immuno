@@ -11,7 +11,8 @@ class Protocol(object):
         super()
         self.dir_path = path_directory
         self.excel_path = path_metadata
-        self.meta_dir = join(self.dir_path, 'meta')
+        # TODO: faire un truc plus propre ici
+        self.meta_dir = "C:/Users/b_charmettant/data/immuno"
 
         assert name in ['MK1454', 'LYTIX']
 

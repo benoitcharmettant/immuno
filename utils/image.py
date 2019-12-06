@@ -69,7 +69,7 @@ def draw_line(image_array, coord_1, coord_2):
 
 
 def crop_patch(image_array, coord, shape):
-    patch = image_array[coord[1]:coord[1] + shape[1], coord[0]: coord[0] + shape[0], :]
+    patch = image_array[int(coord[1]):int(coord[1]) + int(shape[1]), int(coord[0]): int(coord[0]) + int(shape[0]), :]
     return patch
 
 
@@ -109,6 +109,7 @@ def get_ls_patch(image, base_path):
     file_dir, file_name = get_meta_path(image, base_path, 'patch')
 
     if not exists(join(file_dir, file_name)):
+
         return []
 
     with open(join(file_dir, file_name), newline='') as csvfile:
