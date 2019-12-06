@@ -46,7 +46,6 @@ class Tumor(object):
         return len(self.ls_images)
 
     def display(self, figsize=None):
-        # TODO: Order the way exams are display when there are more than 10 exams
         ls_exams = self.get_exams()
 
         for exam in list(ls_exams.values()):

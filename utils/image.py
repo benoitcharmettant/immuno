@@ -1,5 +1,8 @@
 import pydicom
-from matplotlib.pyplot import subplots, show, savefig
+from PIL import Image
+from PIL.ImageDraw import Draw
+from matplotlib.pyplot import subplots, show, savefig, imshow
+from numpy import array, copy
 import matplotlib.patches as patches
 
 
@@ -34,6 +37,32 @@ def show_box(image, coord, shape, save=None):
         show()
     else:
         savefig(save)
+
+
+def draw_box(image_array, coord, shape):
+    image_array = (image_array * 255).astype('uint8')
+    pil_image = Image.fromarray(image_array)
+
+    draw = Draw(pil_image)
+    draw.rectangle(((coord[0], coord[1]), (coord[0] + shape[0], coord[1] + shape[1])), outline='red')
+
+    image_array = copy(array(pil_image))
+
+    return image_array * 255
+
+
+def draw_line(image_array, coord_1, coord_2):
+    image_array = (image_array * 255).astype('uint8')
+    pil_image = Image.fromarray(image_array)
+
+
+
+    draw = Draw(pil_image)
+    draw.line([(int(coord_1[0])-2, int(coord_1[1])-2), (int(coord_2[0])-2, int(coord_2[1])-2)], fill='green', width=5)
+
+    image_array = copy(array(pil_image))
+
+    return image_array * 255
 
 
 def crop_patch(image, coord, shape):
