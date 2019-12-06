@@ -4,11 +4,10 @@ from os import remove
 from os.path import join, exists
 from tkinter import Tk, Menu, Frame, Canvas, NW, Label, Button
 from PIL import Image, ImageTk
-from matplotlib.pyplot import imshow, show
-from numpy import savetxt
+from numpy import savetxt, array, int32
 
 from utils.tools import mkdir, date_to_str
-from utils.image import draw_box, draw_line
+from utils.image import draw_box, draw_line, get_meta_path, get_ls_patch, get_scale
 
 
 class Image_Viewer(Frame):
@@ -94,7 +93,7 @@ class Viewer(object):
         self.current_image_nb = 0
         self.current_image = None
         self.base_path = "C:/Users/b_charmettant/data/immuno"
-        self.patch_size = [40, 40]
+        self.patch_size = 0.25  # in centimeter
 
         # Adapt to screen
 
@@ -130,10 +129,10 @@ class Viewer(object):
 
         image_array = self.current_image['image']
 
-        ls_patchs = self.get_ls_patch(self.current_image)
+        ls_patchs = get_ls_patch(self.current_image, self.base_path)
         image_array = self.draw_patches(image_array, ls_patchs)
 
-        scale_coord = self.get_scale(self.current_image, get_positions=True)
+        scale_coord = get_scale(self.current_image, self.base_path, get_positions=True)
 
         if not scale_coord is None:
             image_array = draw_line(image_array, scale_coord[0], scale_coord[1])
@@ -143,42 +142,33 @@ class Viewer(object):
         self.image_viewer.pack()
 
     def add_patch(self, image, x, y):
-        ls_patch = self.get_ls_patch(image)
+        ls_patch = get_ls_patch(image, self.base_path)
         ls_patch.append([x, y])
         self.update_patch(image, ls_patch)
 
     def update_patch(self, image, ls_patch):
-        file_dir, file_name = self.get_meta_path(image, 'patch')
+        file_dir, file_name = get_meta_path(image, self.base_path, 'patch')
         mkdir(file_dir)
         savetxt(join(file_dir, file_name), ls_patch, delimiter=",", fmt='%s')
 
-    def get_ls_patch(self, image):
-        file_dir, file_name = self.get_meta_path(image, 'patch')
-
-        if not exists(join(file_dir, file_name)):
-            return []
-
-        with open(join(file_dir, file_name), newline='') as csvfile:
-            data = list(csv.reader(csvfile))
-        return data
-
-    def get_meta_path(self, image, meta):
-        dir_path = join(self.base_path, image['protocole'], 'meta', image['patient'])
-        file_name = "{}_{}.csv".format(meta, image['nom_image'])
-
-        return dir_path, file_name
-
     def draw_patches(self, image_array, patch_list):
+        # todo: a passer dans utils.image si possible en utilisant image directement et pas image_array
+        scale = get_scale(self.current_image, self.base_path)
+
+        if scale is None:
+            patch_size_pix = 160 * self.patch_size
+        else:
+            patch_size_pix = scale * self.patch_size
 
         for patch_coord in patch_list:
-            coord = [int(patch_coord[0]) - self.patch_size[0] // 2, int(patch_coord[1]) - self.patch_size[1] // 2]
-            image_array = draw_box(image_array, coord, self.patch_size)
+            coord = [int(patch_coord[0]) - patch_size_pix // 2, int(patch_coord[1]) - patch_size_pix // 2]
+            image_array = draw_box(image_array, coord, [patch_size_pix, patch_size_pix])
 
         return image_array
 
     def remove_patch(self, image):
-        dir, file = self.get_meta_path(image, 'patch')
-        path = join(dir, file)
+        directory, file = get_meta_path(image, self.base_path, 'patch')
+        path = join(directory, file)
         if exists(path):
             remove(path)
 
@@ -201,31 +191,10 @@ class Viewer(object):
         )
 
     def set_scale(self, pos1, pos2):
-        dir, file = self.get_meta_path(self.current_image, 'scale')
-        path = join(dir, file)
+        directory, file = get_meta_path(self.current_image, self.base_path, 'scale')
+        path = join(directory, file)
         mkdir(dir)
         savetxt(path, [pos1, pos2], delimiter=",", fmt='%s')
-
-    def get_scale(self, image, get_positions=False):
-        """
-        The scale of an image should have been set manually to 1 cm after the US image scale
-        :param image: image in the format described in dataset.tumor
-        :param get_positions: Return the coordinates of the scale ends instead
-        :return: Returns the scale (pixels per cm) saved in the meta scale_*.csv,
-                 if the scale wasn't measure returns None.
-        """
-        file_dir, file_name = self.get_meta_path(image, 'scale')
-
-        if not exists(join(file_dir, file_name)):
-            return None
-
-        with open(join(file_dir, file_name), newline='') as csv_file:
-            data = list(csv.reader(csv_file))
-
-        if get_positions:
-            return [data[0], data[1]]
-
-        return abs(data[0][1] - data[1][1])
 
 
 class Menu_Viewer(Menu):

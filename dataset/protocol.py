@@ -7,10 +7,14 @@ from dataset.patient import Patient
 
 
 class Protocol(object):
-    def __init__(self, path_directory, path_metadata, name):
+    def __init__(self, path_directory, path_metadata,  name):
         super()
         self.dir_path = path_directory
         self.excel_path = path_metadata
+        self.meta_dir = join(self.dir_path, 'meta')
+
+        assert name in ['MK1454', 'LYTIX']
+
         self.name = name
 
         self.patients_names = sorted(listdir(join(self.dir_path, 'images')))

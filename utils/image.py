@@ -1,10 +1,14 @@
+import csv
+from os.path import exists, join
+
 import pydicom
 from PIL import Image
 from PIL.ImageDraw import Draw
 from matplotlib.pyplot import subplots, show, savefig, imshow
-from numpy import array, copy
+from numpy import array, copy, int32
 import matplotlib.patches as patches
 
+# todo: verifier que la convention image, image_array est bien respectée de partout
 
 def read_dicom(path, image_only=True):
     ds = pydicom.dcmread(path)
@@ -24,11 +28,11 @@ def anonymize_dicom(dicom_image):
     return dicom_image[70:, :, :]
 
 
-def show_box(image, coord, shape, save=None):
+def show_box(image_array, coord, shape, save=None):
     fig, ax = subplots(1)
 
     # Display the image
-    ax.imshow(image)
+    ax.imshow(image_array)
 
     rect = patches.Rectangle(coord, shape[0], shape[1], linewidth=1, edgecolor='r', facecolor='none')
 
@@ -55,16 +59,58 @@ def draw_line(image_array, coord_1, coord_2):
     image_array = (image_array * 255).astype('uint8')
     pil_image = Image.fromarray(image_array)
 
-
-
     draw = Draw(pil_image)
-    draw.line([(int(coord_1[0])-2, int(coord_1[1])-2), (int(coord_2[0])-2, int(coord_2[1])-2)], fill='green', width=5)
+    draw.line([(int(coord_1[0]) - 2, int(coord_1[1]) - 2), (int(coord_2[0]) - 2, int(coord_2[1]) - 2)], fill='green',
+              width=5)
 
     image_array = copy(array(pil_image))
 
     return image_array * 255
 
 
-def crop_patch(image, coord, shape):
-    patch = image[coord[1]:coord[1] + shape[1], coord[0]: coord[0] + shape[0], :]
+def crop_patch(image_array, coord, shape):
+    patch = image_array[coord[1]:coord[1] + shape[1], coord[0]: coord[0] + shape[0], :]
     return patch
+
+
+def get_scale(image, base_path, get_positions=False):
+    """
+    The scale of an image should have been set manually to 1 cm after the US image scale
+    :param base_path: Base directory for meta_data
+    :param image: image in the format described in dataset.tumor
+    :param get_positions: Return the coordinates of the scale ends instead
+    :return: Returns the scale (pixels per cm) saved in the meta scale_*.csv,
+             if the scale wasn't measure returns None.
+    """
+    file_dir, file_name = get_meta_path(image, base_path, 'scale')
+
+    if not exists(join(file_dir, file_name)):
+        return None
+
+    with open(join(file_dir, file_name), newline='') as csv_file:
+        data = array(list(csv.reader(csv_file))).astype(int32)
+
+    if get_positions:
+        return [data[0], data[1]]
+
+    return abs(data[0][1] - data[1][1])
+
+
+def get_meta_path(image, base_path, meta):
+    dir_path = join(base_path, image['protocole'], 'meta', image['patient'])
+    file_name = "{}_{}.csv".format(meta, image['nom_image'])
+
+    return dir_path, file_name
+
+
+def get_ls_patch(image, base_path):
+    # todo: Changer le nom pour préciser qu'elle renvoit bien que les coordonées et non les patch, ce qui est fait
+    #  dans tumor.get_patches mais qui devra venir ici.
+    file_dir, file_name = get_meta_path(image, base_path, 'patch')
+
+    if not exists(join(file_dir, file_name)):
+        return []
+
+    with open(join(file_dir, file_name), newline='') as csvfile:
+        data = list(csv.reader(csvfile))
+    return data
