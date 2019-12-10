@@ -12,7 +12,7 @@ def main():
     lytix = Protocol(prot_path, meta_data_path, "LYTIX")
 
     protocols = [mk, lytix]
-    viewer = Viewer(protocols)
+    viewer = Viewer(protocols, patch_size=0.3)
 
     viewer.start()
 

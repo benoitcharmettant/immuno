@@ -83,7 +83,7 @@ class Image_Viewer(Frame):
 
 
 class Viewer(object):
-    def __init__(self, protocols, **kwargs):
+    def __init__(self, protocols, patch_size=0.25,  **kwargs):
         super(**kwargs)
         self.master = Tk()
         self.master.title('Immuno Annotation')
@@ -93,7 +93,7 @@ class Viewer(object):
         self.current_image_nb = 0
         self.current_image = None
         self.base_path = "C:/Users/b_charmettant/data/immuno"
-        self.patch_size = 0.25  # in centimeter
+        self.patch_size = patch_size  # in centimeter
 
         # Adapt to screen
 

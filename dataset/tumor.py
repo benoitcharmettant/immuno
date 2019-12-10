@@ -100,6 +100,7 @@ class Tumor(object):
         patches_coord = get_ls_patch(image, self.patient.protocol.meta_dir)
 
         if scale is None:
+
             patch_size_pix = 160 * patch_size
         else:
             patch_size_pix = scale * patch_size
