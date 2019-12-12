@@ -49,4 +49,4 @@ class Patch_Classifier_Dataset(Dataset):
                                     self.new_patch(patch, label_exam)
 
         self.patches = array(self.patches)
-        self.patches.reshape((-1, 3, 40, 40))
+        self.patches = self.patches.reshape((-1, 3, 40, 40))

@@ -1,9 +1,12 @@
 from os import listdir
 from os.path import join
+import sys
 
 from pandas import ExcelFile
 
 from dataset.patient import Patient
+
+
 
 
 class Protocol(object):
@@ -12,7 +15,7 @@ class Protocol(object):
         self.dir_path = path_directory
         self.excel_path = path_metadata
         # TODO: faire un truc plus propre ici
-        self.meta_dir = "C:/Users/b_charmettant/data/immuno"
+        self.meta_dir = "immuno_data/"
 
         assert name in ['MK1454', 'LYTIX']
 
