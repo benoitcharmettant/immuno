@@ -5,7 +5,6 @@ from torch.nn.functional import relu, binary_cross_entropy
 
 class Conv_Net(Model):
     def __init__(self, input_shape, device="cuda:0"):
-
         super().__init__(input_shape, binary_cross_entropy, device)
 
         self.batch_norm_1 = nn.BatchNorm2d(3)
@@ -15,7 +14,7 @@ class Conv_Net(Model):
 
         self.batch_norm_2 = nn.BatchNorm2d(64)
         self.conv3 = nn.Conv2d(64, 128, kernel_size=3)
-        self.conv4 = nn.Conv2d(128, 128, kernel_size=3) # 6*6*128
+        self.conv4 = nn.Conv2d(128, 128, kernel_size=3)  # 6*6*128
         self.pool_2 = nn.AvgPool2d(2)
 
         self.fc1 = nn.Linear(128 * 6 * 6, 2048)
@@ -24,12 +23,12 @@ class Conv_Net(Model):
 
         self.act = relu
         self.final_activation = sigmoid
-        
 
     def forward(self, x):
+        batch_size = x.shape[0]
         x.reshape((-1, self.input_shape[2], self.input_shape[0], self.input_shape[1]))
 
-        batch_size = x.shape[0]
+        x = x.float()
 
         x = self.batch_norm_1(x)
         x = self.act(self.conv1(x))

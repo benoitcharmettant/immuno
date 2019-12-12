@@ -1,17 +1,19 @@
 from cv2 import resize
-from numpy import array
+from numpy import array, transpose, array_equal
+from PIL import Image
 
 from torch.utils.data import Dataset
 
 
 class Patch_Classifier_Dataset(Dataset):
-    def __init__(self, ls_protocols, allowed_patients_by_protocol, patch_size, resize):  # patch size in centimeter
+    def __init__(self, ls_protocols, allowed_patients_by_protocol, patch_size, resize, transform=None): # patch size in centimeter
 
         assert len(ls_protocols) == len(allowed_patients_by_protocol)
 
         self.ls_protocols = ls_protocols
         self.patch_size = patch_size
         self.resize = resize
+        self.transform = transform
 
         self.patches = []
         self.labels = []
@@ -20,7 +22,19 @@ class Patch_Classifier_Dataset(Dataset):
             self.collect_data(self.ls_protocols[i], allowed_patients_by_protocol[i])
 
     def __getitem__(self, index):
-        return self.patches[index], self.labels[index]
+
+        patch = self.patches[index]
+
+        if self.transform:
+
+
+            patch = transpose(patch, (1, 2, 0))*255
+            patch = Image.fromarray(patch.astype('uint8'))
+            patch_tf = self.transform(patch)
+
+            patch = transpose(array(patch_tf), (2, 0, 1))/255
+
+        return patch, self.labels[index]
 
     def __len__(self):
         return len(self.patches)
