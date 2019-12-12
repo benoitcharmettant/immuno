@@ -41,7 +41,6 @@ class Patch_Classifier_Dataset(Dataset):
                         if (exam[0]['date'] - debut_tt).days > 0:
                             label_exam = 1
                         for image in exam:
-
                             ls_patches_exam = tumor.get_patches(image, self.patch_size)
                             if ls_patches_exam is not []:
 

@@ -7,7 +7,7 @@ from PIL import Image, ImageTk
 from numpy import savetxt, array, int32
 
 from utils.tools import mkdir, date_to_str
-from utils.image import draw_box, draw_line, get_meta_path, get_ls_patch, get_scale
+from utils.image import draw_box, draw_line, get_meta_path, get_ls_patch_coord, get_scale
 
 
 class Image_Viewer(Frame):
@@ -129,7 +129,7 @@ class Viewer(object):
 
         image_array = self.current_image['image']
 
-        ls_patchs = get_ls_patch(self.current_image, self.base_path)
+        ls_patchs = get_ls_patch_coord(self.current_image, self.base_path)
         image_array = self.draw_patches(image_array, ls_patchs)
 
         scale_coord = get_scale(self.current_image, self.base_path, get_positions=True)
@@ -142,7 +142,7 @@ class Viewer(object):
         self.image_viewer.pack()
 
     def add_patch(self, image, x, y):
-        ls_patch = get_ls_patch(image, self.base_path)
+        ls_patch = get_ls_patch_coord(image, self.base_path)
         ls_patch.append([x, y])
         self.update_patch(image, ls_patch)
 

@@ -2,9 +2,11 @@ from os import makedirs
 from os.path import exists
 
 
-def my_print(arg, on=True):
+def my_print(arg, logger=None, on=True):
     if on:
         print(arg)
+    if not logger is None:
+        logger.write(arg)
 
 
 def mkdir(path_to_create):

@@ -1,37 +1,53 @@
+from os.path import join
+
 from torch.utils.data import DataLoader, random_split
 
+from experiment_manager.logger import Logger
+from experiment_manager.parser import parse_args
 from models.convnet import Conv_Net
 from models.data_loaders import Patch_Classifier_Dataset
 from dataset.protocol import Protocol
+from utils.tools import my_print
 
-meta_data_path = "immuno_data/recup_donnees_mk.xlsx"
-prot_path = "immuno_data/MK1454"
+args = parse_args()
+logger = Logger(args.logs)
 
-print("Loading data...")
+data_path = args.data_path
+protocols_name = args.protocols
 
-mk = Protocol(prot_path, meta_data_path, "MK1454")
+my_print("Training args : {}".format(args), logger=logger)
 
+
+# Loading dataset
+
+my_print("*** Loading data ***", logger=logger)
+mk = Protocol(data_path, protocols_name[0])
 patients = ['immuno_{}'.format(i) for i in [3, 6, 7, 10, 16]]
-dataset = Patch_Classifier_Dataset([mk], [patients], 0.45, resize=40)
+dataset = Patch_Classifier_Dataset([mk], [patients], args.patch_size, resize=args.resize)
 
-# TODO: ne pas définir le batch_size dès la définition du model !
-model = Conv_Net((40, 40, 3), 10)
 
-ratio_train_val = 0.9
+# Setting up model
 
-train_size = int(ratio_train_val*len(dataset))
-train_size = train_size - train_size % 10
+model = Conv_Net((args.resize, args.resize, 3))
+
+
+# Splitting between training and validation set
+
+ratio_train_val = args.val_ratio
+train_size = int((1 - ratio_train_val)*len(dataset))
 val_size = len(dataset) - train_size
-
-print([train_size, val_size])
-
 train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
 
-train_loader = DataLoader(train_dataset, batch_size=10, shuffle=True)
-val_loader = DataLoader(val_dataset, batch_size=10, shuffle=False)
+my_print("Number of training samples : {}, Validation samples : {}".format(train_size, val_size), logger=logger)
 
-print("Starting training...")
-model.start_training(train_loader, val_loader, epoch=1000, lr=0.00001)
+train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
+val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
+
+# Training the model
+
+my_print("*** Starting training ***", logger=logger)
+
+model.start_training(train_loader, val_loader, epoch=args.epoch, lr=args.lr)
 
 
 

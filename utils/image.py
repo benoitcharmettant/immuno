@@ -103,9 +103,8 @@ def get_meta_path(image, base_path, meta):
     return dir_path, file_name
 
 
-def get_ls_patch(image, base_path):
-    # todo: Changer le nom pour préciser qu'elle renvoit bien que les coordonées et non les patch, ce qui est fait
-    #  dans tumor.get_patches mais qui devra venir ici.
+def get_ls_patch_coord(image, base_path):
+
     file_dir, file_name = get_meta_path(image, base_path, 'patch')
 
     if not exists(join(file_dir, file_name)):

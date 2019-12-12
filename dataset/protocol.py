@@ -1,6 +1,6 @@
 from os import listdir
 from os.path import join
-import sys
+
 
 from pandas import ExcelFile
 
@@ -10,18 +10,19 @@ from dataset.patient import Patient
 
 
 class Protocol(object):
-    def __init__(self, path_directory, path_metadata,  name):
+    def __init__(self, path_directory,  name):
         super()
-        self.dir_path = path_directory
-        self.excel_path = path_metadata
-        # TODO: faire un truc plus propre ici
-        self.meta_dir = "immuno_data/"
+        self.dir_path = join(path_directory, name)
+        self.excel_path = join(self.dir_path, "recup_donnees.xlsx")
+        self.root_data_path = path_directory
+
 
         assert name in ['MK1454', 'LYTIX']
 
         self.name = name
 
         self.patients_names = sorted(listdir(join(self.dir_path, 'images')))
+
         self._xl = ExcelFile(self.excel_path)
 
         self.ls_patients = []

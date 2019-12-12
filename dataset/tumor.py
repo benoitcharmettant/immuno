@@ -3,7 +3,7 @@ from os.path import basename
 from matplotlib.pyplot import imread, show, figure, imshow
 
 
-from utils.image import get_scale, get_ls_patch, crop_patch
+from utils.image import get_scale, get_ls_patch_coord, crop_patch
 from utils.tools import date_to_str
 
 
@@ -96,8 +96,8 @@ class Tumor(object):
         # todo: passer la fonction dans utils.image
         ls_patch = []
 
-        scale = get_scale(image, self.patient.protocol.meta_dir)
-        patches_coord = get_ls_patch(image, self.patient.protocol.meta_dir)
+        scale = get_scale(image, self.patient.protocol.root_data_path)
+        patches_coord = get_ls_patch_coord(image, self.patient.protocol.root_data_path)
 
         if scale is None:
 
