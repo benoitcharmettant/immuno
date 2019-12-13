@@ -48,13 +48,20 @@ def parse_args():
                         type=float,
                         default=0.40,
                         required=False,
-                        help='Size of patches in centimeters')
+                        help='Size of patches in centimeters.')
 
     parser.add_argument('--resize',
                         type=int,
                         default=40,
                         required=False,
-                        help='Size of training images')
+                        help='Size of training images.')
+
+    parser.add_argument('--regul',
+                        type=float,
+                        default=0,
+                        required=False,
+                        help='Weight of L2 regularization during training.')
+
 
     opt = parser.parse_args()
     return opt
