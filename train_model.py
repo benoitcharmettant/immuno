@@ -5,13 +5,13 @@ from torchvision.transforms import Compose, RandomHorizontalFlip, RandomVertical
 
 from experiment_manager.logger import Logger
 from experiment_manager.parser import parse_args
-from models.convnet import Conv_Net
+from models import model_manager
 from models.data_loaders import Patch_Classifier_Dataset
 from dataset.protocol import Protocol
 from utils.tools import my_print
 
 args = parse_args()
-logger = Logger(args.logs)
+logger = Logger(args.logs, args)
 
 data_path = args.data_path
 protocols_name = args.protocols
@@ -20,7 +20,7 @@ my_print("Training args : {}".format(args), logger=logger)
 
 # Setting up model
 
-model = Conv_Net((args.resize, args.resize, 3))
+model = model_manager(args.model, (args.resize, args.resize, 3))
 
 
 # Setting up transformation

@@ -1,13 +1,13 @@
 import torch.nn as nn
 from torch.optim import Adam
-from numpy import mean
-from sklearn.metrics import accuracy_score
+from numpy import mean, array, append
 
 from utils.tools import my_print
+from utils.metrics import accuracy_from_logits
 
 
 class Model(nn.Module):
-    def __init__(self, input_shape, loss, device="cuda:0"):
+    def __init__(self, input_shape, loss, device="cuda:1"):
         super(Model, self).__init__()
         self.input_shape = input_shape
         self.loss = loss
@@ -26,7 +26,6 @@ class Model(nn.Module):
         self.train()
 
         losses = []
-
         metrics = []
 
         for batch_idx, (x, y) in enumerate(train_loader):
@@ -36,11 +35,10 @@ class Model(nn.Module):
             y_pred = self.forward(x)
             loss = self.get_loss(y_pred, y)
 
-
             loss.backward()
             optimizer.step()
 
-            metric = accuracy_score(y.cpu().detach().numpy() > 0.5, y_pred.cpu().detach().numpy())
+            metric = accuracy_from_logits(y_pred.cpu().detach().numpy(), y.cpu().detach().numpy())
 
             losses.append(loss.cpu().item())
             metrics.append(metric)
@@ -53,7 +51,7 @@ class Model(nn.Module):
         optimizer = Adam(self.parameters(), lr=lr, weight_decay=regularization)
 
         smooth_loss, _ = self.train_epoch(optimizer, train_loader)
-        smooth_loss_val, _ = self.start_eval(val_loader)
+        y_pred_val, y_val, smooth_loss_val = self.evaluate(val_loader)
 
         for e in range(epoch - 1):
             # train phase
@@ -62,7 +60,9 @@ class Model(nn.Module):
 
             # validation phase
 
-            loss_val, metric_val = self.start_eval(val_loader)
+            y_pred_val, y_val, loss_val = self.evaluate(val_loader)
+
+            metric_val = accuracy_from_logits(y_pred_val, y_val)
 
             smooth_loss_val = 0.99 * smooth_loss_val + 0.01 * loss_val
 
@@ -75,17 +75,33 @@ class Model(nn.Module):
                                                                                                            metric_val),
                 logger=logger)
 
-    def start_eval(self, eval_loader):
+    def evaluate(self, val_loader):
         self.eval()
+
+        gt = None
+        preds = None
         losses = []
-        metrics = []
-        for batch_idx, (x, y) in enumerate(eval_loader):
-            x, y = x.to(self.device), y.float().to(self.device)
+
+        for (x, y) in val_loader:
+
+            x, y = x.to(self.device), y.to(self.device)
             y_pred = self.forward(x)
+
             loss = self.get_loss(y_pred, y)
-            metric = accuracy_score(y.cpu().detach().numpy() > 0.5, y_pred.cpu().detach().numpy())
+            losses.append(loss.cpu().detach().numpy())
 
-            losses.append(loss.cpu().item())
-            metrics.append(metric)
+            y_pred = y_pred.cpu().detach().numpy()
+            y = y.cpu().detach().numpy()
 
-        return mean(losses), mean(metrics)
+
+            if preds is not None:
+                preds = append(preds, y_pred, axis=0)
+            else:
+                preds = y_pred
+
+            if gt is not None:
+                gt = append(gt, y, axis=0)
+            else:
+                gt = y
+
+        return preds, gt, mean(losses)

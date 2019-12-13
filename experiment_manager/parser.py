@@ -4,6 +4,12 @@ from argparse import ArgumentParser
 def parse_args():
     parser = ArgumentParser(description='Settings for immuno therapy project.')
 
+    parser.add_argument('--model',
+                        choices=['convnet'],
+                        type=str,
+                        required=True,
+                        help='Name of the model to be trained.')
+
     parser.add_argument('--data_path',
                         type=str,
                         required=True,
