@@ -87,7 +87,7 @@ class Model(nn.Module):
             x, y = x.to(self.device), y.to(self.device)
             y_pred = self.forward(x)
 
-            loss = self.get_loss(y_pred, y)
+            loss = self.get_loss(y_pred.float(), y.float())
             losses.append(loss.cpu().detach().numpy())
 
             y_pred = y_pred.cpu().detach().numpy()

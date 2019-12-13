@@ -48,6 +48,10 @@ val_size = len(dataset) - train_size
 train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
 
 my_print("Number of training samples : {}, Validation samples : {}".format(train_size, val_size), logger=logger)
+"""my_print("Training labels : 1 - {}  ,  2 - {}".format(sum(train_dataset.labels),
+                                                      len(train_dataset.labels) - sum(train_dataset.labels)))
+my_print("Validation labels : 1 - {}  ,  2 - {}".format(sum(val_dataset.labels),
+                                                        len(val_dataset.labels) - sum(val_dataset.labels)))"""
 
 train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
