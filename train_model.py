@@ -1,13 +1,11 @@
-from os.path import join
-
 from torch import manual_seed
 from torch.utils.data import DataLoader, random_split
-from torchvision.transforms import Compose, RandomHorizontalFlip, RandomVerticalFlip, RandomRotation
+from torchvision.transforms import Compose, RandomHorizontalFlip, RandomVerticalFlip
 
 from experiment_manager.logger import Logger
 from experiment_manager.parser import parse_args
 from models import model_manager
-from models.data_loaders import Patch_Classifier_Dataset, get_labels_subset
+from dataset.data_loaders import Patch_Classifier_Dataset, get_labels_subset
 from dataset.protocol import Protocol
 from utils.tools import my_print
 
@@ -44,16 +42,22 @@ mk = Protocol(data_path, protocols_name[0])
 patients_mk = ['immuno_{}'.format(i) for i in [3, 6, 7, 10, 16]]
 # patients_lytix = ['immuno_{}'.format(i) for i in [22, 24, 26, 33]] dataset = Patch_Classifier_Dataset([mk, lytix],
 # [patients_mk, patients_lytix], args.patch_size, resize=args.resize, transform=transformations)
-dataset = Patch_Classifier_Dataset([mk], [patients_mk], args.patch_size, resize=args.resize, transform=transformations)
-# Splitting between training and validation set
 
-ratio_train_val = args.val_ratio
-train_size = int((1 - ratio_train_val) * len(dataset))
-val_size = len(dataset) - train_size
-train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
+train_dataset = Patch_Classifier_Dataset([mk], [patients_mk], args.patch_size,
+                                         resize=args.resize,
+                                         transform=transformations,
+                                         subset='train')
 
-train_label_0, train_label_1 = get_labels_subset(dataset, train_dataset)
-val_label_0, val_label_1 = get_labels_subset(dataset, val_dataset)
+val_dataset = Patch_Classifier_Dataset([mk], [patients_mk], args.patch_size,
+                                       resize=args.resize,
+                                       transform=transformations,
+                                       subset='val')
+
+train_size = len(train_dataset)
+val_size = len(val_dataset)
+
+train_label_0, train_label_1 = get_labels_subset(train_dataset)
+val_label_0, val_label_1 = get_labels_subset(val_dataset)
 
 my_print("Number of training samples : {}, Validation samples : {}".format(train_size, val_size), logger=logger)
 my_print(

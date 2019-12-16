@@ -1,15 +1,19 @@
 from cv2 import resize
-from numpy import array, transpose, array_equal
+from numpy import array, transpose
 from PIL import Image
 
 from torch.utils.data import Dataset
 
+from utils.image import get_patches, get_ls_patch_coord, get_dict_split
+
 
 class Patch_Classifier_Dataset(Dataset):
     def __init__(self, ls_protocols, allowed_patients_by_protocol, patch_size, resize,
-                 transform=None):  # patch size in centimeter
+                 transform=None,
+                 subset='train'):  # patch size in centimeter
 
         assert len(ls_protocols) == len(allowed_patients_by_protocol)
+        assert subset in ['train', 'val']
 
         self.ls_protocols = ls_protocols
         self.patch_size = patch_size
@@ -18,6 +22,7 @@ class Patch_Classifier_Dataset(Dataset):
 
         self.patches = []
         self.labels = []
+        self.coord = []
 
         for i in range(len(self.ls_protocols)):
             self.collect_data(self.ls_protocols[i], allowed_patients_by_protocol[i])
@@ -41,37 +46,34 @@ class Patch_Classifier_Dataset(Dataset):
     def __len__(self):
         return len(self.patches)
 
-    def new_patch(self, patch, label):
+    def new_patch(self, patch, label, coord):
         patch = resize(patch, (self.resize, self.resize))
         patch = patch[:, :, :3]
         self.patches.append(patch)
         self.labels.append(label)
+        self.coord.append(coord)
 
     def collect_data(self, protocol, allowed_patients):
         for patient in protocol.ls_patients:
             if patient.name in allowed_patients:
+
                 debut_tt = patient.get_patient_info()['debut_tt']
+
                 for tumor in patient.ls_tumors.values():
                     for exam in tumor.get_exams().values():
                         label_exam = 0
                         if (exam[0]['date'] - debut_tt).days > 0:
                             label_exam = 1
                         for image in exam:
-                            ls_patches_exam = tumor.get_patches(image, self.patch_size)
-                            if ls_patches_exam is not []:
+                            ls_patches = get_patches(image, protocol.root_data_path, self.patch_size)
+                            ls_coord = get_ls_patch_coord(image, protocol.root_data_path)
+                            dict_split = get_dict_split(image, protocol.root_data_path)
 
-                                for patch in ls_patches_exam:
-                                    self.new_patch(patch, label_exam)
+                            for i, patch in enumerate(ls_patches):
+                                if dict_split[f'{ls_coord[i][0]}_{ls_coord[i][0]}'] == self.subset:
+                                    self.new_patch(patch, label_exam, ls_coord[i])
 
 
-
-
-def get_labels_subset(dataset, subset):
-    nb_label_1 = 0
-
-    for i in subset.indices:
-        nb_label_1 += dataset.labels[i]
-
-    nb_label_0 = len(subset.indices) - nb_label_1
-
-    return nb_label_0, nb_label_1
+def get_labels_subset(dataset):
+    nb_label_1 = sum(dataset.labels)
+    return len(dataset) - nb_label_1, nb_label_1

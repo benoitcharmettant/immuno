@@ -3,16 +3,13 @@ from viewer.protocol_viewer import Viewer
 
 
 def main():
-    meta_data_path = "C:/Users/b_charmettant/Desktop/Données_immunothérapies/MK1454/recup_donnees_mk.xlsx"
-    prot_path = "C:/Users/b_charmettant/data/immuno/MK1454"
-    mk = Protocol(prot_path, meta_data_path, "MK1454")
 
-    meta_data_path = "C:/Users/b_charmettant/Desktop/Données_immunothérapies/LYTIX/recup_donnees_benoit.xlsx"
-    prot_path = "C:/Users/b_charmettant/data/immuno/LYTIX"
-    lytix = Protocol(prot_path, meta_data_path, "LYTIX")
+    dataset_path = "C:/Users/b_charmettant/data/immuno"
+    mk = Protocol(dataset_path, "MK1454")
+    lytix = Protocol(dataset_path, "LYTIX")
 
     protocols = [mk, lytix]
-    viewer = Viewer(protocols, patch_size=0.3)
+    viewer = Viewer(protocols, patch_size=0.4)
 
     viewer.start()
 

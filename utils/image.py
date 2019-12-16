@@ -4,11 +4,18 @@ from os.path import exists, join
 import pydicom
 from PIL import Image
 from PIL.ImageDraw import Draw
-from matplotlib.pyplot import subplots, show, savefig, imshow
+from matplotlib.pyplot import subplots, show, savefig
 from numpy import array, copy, int32
 import matplotlib.patches as patches
 
-# todo: verifier que la convention image, image_array est bien respectée de partout
+
+#
+# * Variable named "image" refers to a python dictionary, with a
+#   format defined in dataset.tumor (includes meta data about the image)
+#
+# * variable name "image_array" refers to a numpy array containing only
+#   pixels values of an image
+#
 
 def read_dicom(path, image_only=True):
     ds = pydicom.dcmread(path)
@@ -18,14 +25,14 @@ def read_dicom(path, image_only=True):
     return image, ds
 
 
-def anonymize_dicom(dicom_image):
+def anonymize_dicom(image_dicom):
     """
     Anonymize a raw dicom image by cropping top 70px.
-    :param dicom_image: raw dicom image HxWxC
+    :param image_dicom: raw dicom image HxWxC
     :return: anonymize image as an array
     """
 
-    return dicom_image[70:, :, :]
+    return image_dicom[70:, :, :]
 
 
 def show_box(image_array, coord, shape, save=None):
@@ -104,13 +111,49 @@ def get_meta_path(image, base_path, meta):
 
 
 def get_ls_patch_coord(image, base_path):
-
     file_dir, file_name = get_meta_path(image, base_path, 'patch')
 
     if not exists(join(file_dir, file_name)):
-
         return []
 
     with open(join(file_dir, file_name), newline='') as csvfile:
         data = list(csv.reader(csvfile))
     return data
+
+
+def get_dict_split(image, base_path):
+    file_dir, file_name = get_meta_path(image, base_path, 'split')
+
+    if not exists(join(file_dir, file_name)):
+        return []
+
+    with open(join(file_dir, file_name), newline='') as csvfile:
+        data = list(csv.reader(csvfile))
+
+    formatted_data = {}
+
+    for l in data:
+        formatted_data[f"{l[0]}_{l[1]}"] = l[2]
+
+    return formatted_data
+
+
+def get_patches(image, base_path, patch_size):
+    ls_patch = []
+
+    scale = get_scale(image, base_path)
+    patches_coord = get_ls_patch_coord(image, base_path)
+
+    if scale is None:
+        patch_size_pix = 160 * patch_size
+    else:
+        patch_size_pix = scale * patch_size
+
+    for coord in patches_coord:
+        coord_patch = [int(coord[0]) - patch_size_pix // 2, int(coord[1]) - patch_size_pix // 2]
+
+        patch = crop_patch(image['image'], coord_patch, [patch_size_pix, patch_size_pix])
+
+        ls_patch.append(patch)
+
+    return ls_patch

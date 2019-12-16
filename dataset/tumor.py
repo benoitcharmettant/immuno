@@ -2,8 +2,6 @@ from os.path import basename
 
 from matplotlib.pyplot import imread, show, figure, imshow
 
-
-from utils.image import get_scale, get_ls_patch_coord, crop_patch
 from utils.tools import date_to_str
 
 
@@ -91,27 +89,4 @@ class Tumor(object):
             if (image_date - injection).days > 0:
                 last_injection = injection
         return last_injection
-
-    def get_patches(self, image, patch_size):
-
-        ls_patch = []
-
-        scale = get_scale(image, self.patient.protocol.root_data_path)
-        patches_coord = get_ls_patch_coord(image, self.patient.protocol.root_data_path)
-
-        if scale is None:
-
-            patch_size_pix = 160 * patch_size
-        else:
-            patch_size_pix = scale * patch_size
-
-        for coord in patches_coord:
-
-            coord_patch = [int(coord[0]) - patch_size_pix // 2, int(coord[1]) - patch_size_pix // 2]
-
-            patch = crop_patch(image['image'], coord_patch, [patch_size_pix, patch_size_pix])
-
-            ls_patch.append(patch)
-
-        return ls_patch
 
