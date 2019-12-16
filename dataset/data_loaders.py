@@ -19,6 +19,7 @@ class Patch_Classifier_Dataset(Dataset):
         self.patch_size = patch_size
         self.resize = resize
         self.transform = transform
+        self.subset = subset
 
         self.patches = []
         self.labels = []
@@ -70,7 +71,7 @@ class Patch_Classifier_Dataset(Dataset):
                             dict_split = get_dict_split(image, protocol.root_data_path)
 
                             for i, patch in enumerate(ls_patches):
-                                if dict_split[f'{ls_coord[i][0]}_{ls_coord[i][0]}'] == self.subset:
+                                if dict_split[f'{ls_coord[i][0]}_{ls_coord[i][1]}'] == self.subset:
                                     self.new_patch(patch, label_exam, ls_coord[i])
 
 
