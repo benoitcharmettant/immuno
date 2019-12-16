@@ -47,11 +47,12 @@ def plot_training(path_log_dir, log_file_name="console.log", random_pred_level=N
 
     [train_loss, train_acc, val_loss, val_acc] = parse_log_file(path_log_file, infos)
 
+    weight = 0.9
 
-    train_loss = smooth(train_loss, 0.99)
-    val_loss = smooth(val_loss, 0.99)
-    train_acc = smooth(train_acc, 0.99)
-    val_acc = smooth(val_acc, 0.99)
+    train_loss = smooth(train_loss, weight)
+    val_loss = smooth(val_loss, weight)
+    train_acc = smooth(train_acc, weight)
+    val_acc = smooth(val_acc, weight)
 
 
     train_epoch = range(len(train_acc))

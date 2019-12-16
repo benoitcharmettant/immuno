@@ -11,8 +11,6 @@ from models.data_loaders import Patch_Classifier_Dataset, get_labels_subset
 from dataset.protocol import Protocol
 from utils.tools import my_print
 
-
-
 args = parse_args()
 logger = Logger(args.logs, args)
 
@@ -44,8 +42,8 @@ my_print("   *** Loading data ***   ", logger=logger)
 mk = Protocol(data_path, protocols_name[0])
 # lytix = Protocol(data_path, protocols_name[1])
 patients_mk = ['immuno_{}'.format(i) for i in [3, 6, 7, 10, 16]]
-# patients_lytix = ['immuno_{}'.format(i) for i in [22, 24, 26, 33]]
-# dataset = Patch_Classifier_Dataset([mk, lytix], [patients_mk, patients_lytix], args.patch_size, resize=args.resize, transform=transformations)
+# patients_lytix = ['immuno_{}'.format(i) for i in [22, 24, 26, 33]] dataset = Patch_Classifier_Dataset([mk, lytix],
+# [patients_mk, patients_lytix], args.patch_size, resize=args.resize, transform=transformations)
 dataset = Patch_Classifier_Dataset([mk], [patients_mk], args.patch_size, resize=args.resize, transform=transformations)
 # Splitting between training and validation set
 
@@ -58,13 +56,16 @@ train_label_0, train_label_1 = get_labels_subset(dataset, train_dataset)
 val_label_0, val_label_1 = get_labels_subset(dataset, val_dataset)
 
 my_print("Number of training samples : {}, Validation samples : {}".format(train_size, val_size), logger=logger)
-my_print("Training labels :\t0: {}  -  1: {}  ({:.3f})".format(train_label_0, train_label_1, train_label_1/train_size))
-my_print("Validation labels :\t0: {}  -  1: {} ({:.3f})".format(val_label_0, val_label_1, val_label_1/val_size))
+my_print(
+    "Training labels :\t0: {}  -  1: {}  ({:.3f})".format(train_label_0, train_label_1, train_label_1 / train_size),
+    logger=logger)
+my_print("Validation labels :\t0: {}  -  1: {} ({:.3f})".format(val_label_0, val_label_1, val_label_1 / val_size),
+         logger=logger)
 
-p_train = train_label_1/train_size
-p_val = val_label_1/val_size
+p_train = train_label_1 / train_size
+p_val = val_label_1 / val_size
 
-random_pred_level = p_train*p_val + (1-p_train)*(1-p_val)
+random_pred_level = p_train * p_val + (1 - p_train) * (1 - p_val)
 
 train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)

@@ -1,3 +1,6 @@
+from os.path import join
+
+from torch import save
 import torch.nn as nn
 from torch.optim import Adam
 from numpy import mean, array, append
@@ -5,6 +8,7 @@ from numpy import mean, array, append
 from utils.tools import my_print
 from utils.metrics import accuracy_from_logits
 from utils.visualisation import plot_training
+
 
 class Model(nn.Module):
     def __init__(self, input_shape, loss, device="cuda:1"):
@@ -44,11 +48,14 @@ class Model(nn.Module):
             metrics.append(metric)
         return mean(losses), mean(metrics)
 
-    def start_training(self, train_loader, val_loader, epoch=20, lr=0.01, logger=None, regularization=0, random_pred_level=None):
+    def start_training(self, train_loader, val_loader, epoch=20, lr=0.01, logger=None, regularization=0,
+                       random_pred_level=None):
         self.to(self.device)
         # TODO: add modular metrics system !
         # TODO: add options for the optimizer !
         optimizer = Adam(self.parameters(), lr=lr, weight_decay=regularization)
+
+        lowest_eval_loss = 1000
 
         for e in range(epoch - 1):
             # train phase
@@ -58,6 +65,12 @@ class Model(nn.Module):
 
             y_pred_val, y_val, loss_val = self.evaluate(val_loader)
             metric_val = accuracy_from_logits(y_pred_val, y_val)
+
+            if loss_val < lowest_eval_loss:
+                lowest_eval_loss = loss_val
+                weight_path = join(logger.root_dir, "best_model.pth")
+                my_print(f"Saving model in {weight_path}", logger=logger)
+                save(self, weight_path)
 
             my_print(
                 'Train Epoch: {}/{}\tLoss: {:.6f} - Acc: {:.3f}\t(Eval Loss: {:.6f} - Acc: {:.3f})'.format(e + 1,
@@ -88,7 +101,6 @@ class Model(nn.Module):
 
             y_pred = y_pred.cpu().detach().numpy()
             y = y.cpu().detach().numpy()
-
 
             if preds is not None:
                 preds = append(preds, y_pred, axis=0)

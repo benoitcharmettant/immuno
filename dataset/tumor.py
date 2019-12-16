@@ -93,7 +93,7 @@ class Tumor(object):
         return last_injection
 
     def get_patches(self, image, patch_size):
-        # todo: passer la fonction dans utils.image
+
         ls_patch = []
 
         scale = get_scale(image, self.patient.protocol.root_data_path)

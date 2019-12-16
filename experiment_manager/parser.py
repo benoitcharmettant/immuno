@@ -1,5 +1,14 @@
 from argparse import ArgumentParser
 
+def str2bool(v):
+    if isinstance(v, bool):
+       return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
 
 def parse_args():
     parser = ArgumentParser(description='Settings for immuno therapy project.')
@@ -67,6 +76,12 @@ def parse_args():
                         default=0,
                         required=False,
                         help='Weight of L2 regularization during training.')
+
+    parser.add_argument('--seed',
+                        type=str2bool,
+                        default=0,
+                        required=False,
+                        help='Seeding option (0 / 1)')
 
 
     opt = parser.parse_args()
