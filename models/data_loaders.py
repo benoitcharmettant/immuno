@@ -6,7 +6,8 @@ from torch.utils.data import Dataset
 
 
 class Patch_Classifier_Dataset(Dataset):
-    def __init__(self, ls_protocols, allowed_patients_by_protocol, patch_size, resize, transform=None): # patch size in centimeter
+    def __init__(self, ls_protocols, allowed_patients_by_protocol, patch_size, resize,
+                 transform=None):  # patch size in centimeter
 
         assert len(ls_protocols) == len(allowed_patients_by_protocol)
 
@@ -21,18 +22,19 @@ class Patch_Classifier_Dataset(Dataset):
         for i in range(len(self.ls_protocols)):
             self.collect_data(self.ls_protocols[i], allowed_patients_by_protocol[i])
 
+        self.patches = array(self.patches)
+        self.patches = self.patches.reshape((-1, 3, 40, 40))
+
     def __getitem__(self, index):
 
         patch = self.patches[index]
 
         if self.transform:
-
-
-            patch = transpose(patch, (1, 2, 0))*255
+            patch = transpose(patch, (1, 2, 0)) * 255
             patch = Image.fromarray(patch.astype('uint8'))
             patch_tf = self.transform(patch)
 
-            patch = transpose(array(patch_tf), (2, 0, 1))/255
+            patch = transpose(array(patch_tf), (2, 0, 1)) / 255
 
         return patch, self.labels[index]
 
@@ -61,5 +63,15 @@ class Patch_Classifier_Dataset(Dataset):
                                 for patch in ls_patches_exam:
                                     self.new_patch(patch, label_exam)
 
-        self.patches = array(self.patches)
-        self.patches = self.patches.reshape((-1, 3, 40, 40))
+
+
+
+def get_labels_subset(dataset, subset):
+    nb_label_1 = 0
+
+    for i in subset.indices:
+        nb_label_1 += dataset.labels[i]
+
+    nb_label_0 = len(subset.indices) - nb_label_1
+
+    return nb_label_0, nb_label_1

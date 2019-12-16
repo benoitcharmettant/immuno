@@ -39,7 +39,7 @@ def smooth(ls, weight):
     return smoothed
 
 
-def plot_training(path_log_dir, log_file_name="console.log"):
+def plot_training(path_log_dir, log_file_name="console.log", random_pred_level=None):
     path_log_file = join(path_log_dir, log_file_name)
     path_target_file = join(path_log_dir, "training_visualisation.png")
 
@@ -47,8 +47,12 @@ def plot_training(path_log_dir, log_file_name="console.log"):
 
     [train_loss, train_acc, val_loss, val_acc] = parse_log_file(path_log_file, infos)
 
+
+    train_loss = smooth(train_loss, 0.99)
+    val_loss = smooth(val_loss, 0.99)
     train_acc = smooth(train_acc, 0.99)
     val_acc = smooth(val_acc, 0.99)
+
 
     train_epoch = range(len(train_acc))
 
@@ -62,6 +66,9 @@ def plot_training(path_log_dir, log_file_name="console.log"):
 
     ax2.plot(train_epoch, train_acc)
     ax2.plot(train_epoch, val_acc)
+    if random_pred_level is not None:
+        random_pred = [random_pred_level for i in range(len(train_acc))]
+        ax2.plot(train_epoch, random_pred, linewidth=1, color='grey')
     ax2.grid(True)
     ax2.set(xlabel='Training epochs', ylabel='Accuracy')
 
@@ -69,4 +76,4 @@ def plot_training(path_log_dir, log_file_name="console.log"):
 
 
 if __name__ == "__main__":
-    plot_training("/home/opis/bcharmme/logs/toy/convnet_lr0.0001_e10000_bs20_ps0.4_s40_r0.05/")
+    plot_training("/home/opis/bcharmme/logs/toy/convnet_lr0.0001_e4000_bs20_ps0.4_s40_r0.04")
