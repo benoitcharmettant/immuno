@@ -57,22 +57,17 @@ class Patch_Classifier_Dataset(Dataset):
     def collect_data(self, protocol, allowed_patients):
         for patient in protocol.ls_patients:
             if patient.name in allowed_patients:
-
-                debut_tt = patient.get_patient_info()['debut_tt']
-
                 for tumor in patient.ls_tumors.values():
                     for exam in tumor.get_exams().values():
-                        label_exam = 0
-                        if (exam[0]['date'] - debut_tt).days > 0:
-                            label_exam = 1
                         for image in exam:
                             ls_patches = get_patches(image, protocol.root_data_path, self.patch_size)
                             ls_coord = get_ls_patch_coord(image, protocol.root_data_path)
                             dict_split = get_dict_split(image, protocol.root_data_path)
+                            label = int((image['date'] - image['debut_tt_patient']).days > 0)
 
                             for i, patch in enumerate(ls_patches):
                                 if dict_split[f'{ls_coord[i][0]}_{ls_coord[i][1]}'] == self.subset:
-                                    self.new_patch(patch, label_exam, ls_coord[i])
+                                    self.new_patch(patch, label, ls_coord[i])
 
 
 def get_labels_subset(dataset):
