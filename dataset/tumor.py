@@ -30,7 +30,8 @@ class Tumor(object):
                      'nom_image': image_name,
                      'tumor': self.name,
                      'patient': self.patient.name,
-                     'protocole': self.patient.protocol.name}
+                     'protocole': self.patient.protocol.name,
+                     'debut_tt_patient': self.patient.patient_info['debut_tt']}
 
         self.ls_images[basename(path_image)] = new_image
 

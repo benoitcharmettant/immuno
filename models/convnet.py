@@ -26,7 +26,7 @@ class Conv_Net(Model):
 
     def forward(self, x):
         batch_size = x.shape[0]
-        x.reshape((-1, self.input_shape[2], self.input_shape[0], self.input_shape[1]))
+        x = x.reshape((-1, self.input_shape[2], self.input_shape[0], self.input_shape[1]))
 
         x = x.float()
 

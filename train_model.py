@@ -86,3 +86,7 @@ model.start_training(train_loader, val_loader,
                      logger=logger,
                      regularization=args.regul,
                      random_pred_level=random_pred_level)
+
+weight_path = join(logger.root_dir, "final_model.pth")
+my_print(f"Saving model in {weight_path}", logger=logger)
+save(model, weight_path)

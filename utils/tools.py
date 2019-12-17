@@ -9,12 +9,14 @@ def my_print(arg, logger=None, on=True):
         logger.write(arg)
 
 
-def mkdir(path_to_create):
+def mkdir(path_to_create, print=True):
     if not exists(path_to_create):
         makedirs(path_to_create)
-        my_print("Creating path: {}".format(path_to_create))
+        if print:
+            my_print("Creating path: {}".format(path_to_create))
     else:
-        my_print("Already exists: {}".format(path_to_create))
+        if print:
+            my_print("Already exists: {}".format(path_to_create))
 
 
 def date_to_str(date):
