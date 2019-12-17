@@ -8,6 +8,7 @@ from models import model_manager
 from dataset.data_loaders import Patch_Classifier_Dataset, get_labels_subset
 from dataset.protocol import Protocol
 from utils.tools import my_print
+from utils.augmentation import Rotate_90
 
 args = parse_args()
 logger = Logger(args.logs, args)
@@ -32,7 +33,8 @@ model = model_manager(args.model, (args.resize, args.resize, 3))
                            RandomRotation((-180, 180), expand=False)])"""
 
 transformations = Compose([RandomHorizontalFlip(p=0.5),
-                           RandomVerticalFlip(p=0.5)])
+                           RandomVerticalFlip(p=0.5),
+                           Rotate_90()])
 
 # Loading dataset
 
