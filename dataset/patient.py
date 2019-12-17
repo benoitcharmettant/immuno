@@ -51,7 +51,6 @@ class Patient(object):
                 patient_info[info] = header[1][i]
         return patient_info
 
-
     def get_dim_cible(self, image):
         dim = self.get_image_info(image, 'dim_cible')
         if dim.replace(" ", "") == "":
