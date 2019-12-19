@@ -1,13 +1,13 @@
-import csv
 from functools import partial
 from os import remove
 from os.path import join, exists
 from tkinter import Tk, Menu, Frame, Canvas, NW, Label, Button
 from PIL import Image, ImageTk
-from numpy import savetxt, array, int32
+from numpy import savetxt
 
+from experiment_manager.inspect_results import get_results_image, get_ls_colors
 from utils.tools import mkdir, date_to_str
-from utils.image import draw_box, draw_line, get_meta_path, get_ls_patch_coord, get_scale
+from utils.image import draw_box, draw_line, get_meta_path, get_ls_patch_coord, get_scale, draw_patches
 
 
 class Image_Viewer(Frame):
@@ -27,11 +27,11 @@ class Image_Viewer(Frame):
         self.scale_pos_2 = None
 
     def display_image(self, image_array):
-        if not self.image_canvas is None:
+        if self.image_canvas is not None:
             self.image_canvas.pack_forget()
-        if not self.label is None:
+        if self.label is not None:
             self.label.pack_forget()
-        if not self.remove_button is None:
+        if self.remove_button is not None:
             self.remove_button.pack_forget()
 
         self.label = Label(self.viewer.master, text=self.viewer.get_label_info())
@@ -78,12 +78,12 @@ class Image_Viewer(Frame):
 
     def delete_patch_command(self):
         image = self.viewer.current_image
-        self.viewer.remove_patch(image)
+        self.viewer.remove_patch_file(image)
         self.viewer.update_display()
 
 
 class Viewer(object):
-    def __init__(self, protocols, patch_size=0.25,  **kwargs):
+    def __init__(self, protocols, patch_size=0.25, **kwargs):
         super(**kwargs)
         self.master = Tk()
         self.master.title('Immuno Annotation')
@@ -94,6 +94,10 @@ class Viewer(object):
         self.current_image = None
         self.base_path = "C:/Users/b_charmettant/data/immuno"
         self.patch_size = patch_size  # in centimeter
+
+        self.show_subset_results = ['train']  # Results for which the colors will be displayed
+        self.results_dir = "C:/Users/b_charmettant/logs/predictions/"
+        self.result_display_mode = "l1_error"
 
         # Adapt to screen
 
@@ -115,6 +119,15 @@ class Viewer(object):
     def start(self):
         self.master.mainloop()
 
+    def change_image_number(self, delta, event):
+        if 0 <= self.current_image_nb + delta < len(self.current_exam):
+            self.current_image_nb += delta
+
+        self.update_display()
+
+    def change_exam(self, delta, event):
+        self.menubar.change_exam_by_delta(delta)
+
     def update_exam(self, exam, image_nb=0):
         self.current_exam = exam
 
@@ -129,57 +142,27 @@ class Viewer(object):
 
         image_array = self.current_image['image']
 
-        ls_patchs = get_ls_patch_coord(self.current_image, self.base_path)
-        image_array = self.draw_patches(image_array, ls_patchs)
+        ls_patches_coord = get_ls_patch_coord(self.current_image, self.base_path)
+        scale, scale_coord = get_scale(self.current_image, self.base_path)
 
-        scale_coord = get_scale(self.current_image, self.base_path, get_positions=True)
+        # todo: gérer le cas ou le patient n'a pas de résultat plus proprement
+        if self.results_dir is not None:
+            results_df = get_results_image(self.current_image, self.results_dir)
+            if results_df is not None:
+                ls_colors = get_ls_colors(ls_patches_coord, results_df, self.show_subset_results,
+                                          mode=self.result_display_mode)
+                image_array = draw_patches(image_array, ls_patches_coord, scale, self.patch_size, color_list=ls_colors)
+            else:
+                image_array = draw_patches(image_array, ls_patches_coord, scale, self.patch_size)
+        else:
+            image_array = draw_patches(image_array, ls_patches_coord, scale, self.patch_size)
 
-        if not scale_coord is None:
+        if scale_coord is not None:
             image_array = draw_line(image_array, scale_coord[0], scale_coord[1])
 
         self.image_viewer.display_image(image_array)
 
         self.image_viewer.pack()
-
-    def add_patch(self, image, x, y):
-        ls_patch = get_ls_patch_coord(image, self.base_path)
-        ls_patch.append([x, y])
-        self.update_patch(image, ls_patch)
-
-    def update_patch(self, image, ls_patch):
-        file_dir, file_name = get_meta_path(image, self.base_path, 'patch')
-        mkdir(file_dir)
-        savetxt(join(file_dir, file_name), ls_patch, delimiter=",", fmt='%s')
-
-    def draw_patches(self, image_array, patch_list):
-        # todo: a passer dans utils.image si possible en utilisant image directement et pas image_array
-        scale = get_scale(self.current_image, self.base_path)
-
-        if scale is None:
-            patch_size_pix = 160 * self.patch_size
-        else:
-            patch_size_pix = scale * self.patch_size
-
-        for patch_coord in patch_list:
-            coord = [int(patch_coord[0]) - patch_size_pix // 2, int(patch_coord[1]) - patch_size_pix // 2]
-            image_array = draw_box(image_array, coord, [patch_size_pix, patch_size_pix])
-
-        return image_array
-
-    def remove_patch(self, image):
-        directory, file = get_meta_path(image, self.base_path, 'patch')
-        path = join(directory, file)
-        if exists(path):
-            remove(path)
-
-    def change_image_number(self, delta, event):
-        if 0 <= self.current_image_nb + delta < len(self.current_exam):
-            self.current_image_nb += delta
-
-        self.update_display()
-
-    def change_exam(self, delta, event):
-        self.menubar.change_exam_by_delta(delta)
 
     def get_label_info(self):
         return "Protocole : {}   -   Patient : {}   -   Examen {}   -   Image : {}   -   Machine : {}".format(
@@ -193,8 +176,24 @@ class Viewer(object):
     def set_scale(self, pos1, pos2):
         directory, file = get_meta_path(self.current_image, self.base_path, 'scale')
         path = join(directory, file)
-        mkdir(dir)
+        mkdir(directory)
         savetxt(path, [pos1, pos2], delimiter=",", fmt='%s')
+
+    def add_patch(self, image, x, y):
+        ls_patch = get_ls_patch_coord(image, self.base_path)
+        ls_patch.append([x, y])
+        self.update_patch_file(image, ls_patch)
+
+    def update_patch_file(self, image, ls_patch):
+        file_dir, file_name = get_meta_path(image, self.base_path, 'patch')
+        mkdir(file_dir)
+        savetxt(join(file_dir, file_name), ls_patch, delimiter=",", fmt='%s')
+
+    def remove_patch_file(self, image):
+        directory, file = get_meta_path(image, self.base_path, 'patch')
+        path = join(directory, file)
+        if exists(path):
+            remove(path)
 
 
 class Menu_Viewer(Menu):

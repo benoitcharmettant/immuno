@@ -13,7 +13,7 @@ import matplotlib.patches as patches
 # * Variable named "image" refers to a python dictionary, with a
 #   format defined in dataset.tumor (includes meta data about the image)
 #
-# * variable name "image_array" refers to a numpy array containing only
+# * Variable name "image_array" refers to a numpy array containing only
 #   pixels values of an image
 #
 
@@ -50,12 +50,40 @@ def show_box(image_array, coord, shape, save=None):
         savefig(save)
 
 
-def draw_box(image_array, coord, shape):
+def get_color(value):
+    value = int(255*value)
+    color = (value, 255 - value, 0)
+    return color
+
+
+def draw_patches(image_array, patch_list, scale, patch_size, color_list=None):
+    if scale is None:
+        patch_size_pix = 160 * patch_size
+    else:
+        patch_size_pix = scale * patch_size
+
+    for i, patch_coord in enumerate(patch_list):
+        coord = [int(patch_coord[0]) - patch_size_pix // 2, int(patch_coord[1]) - patch_size_pix // 2]
+        if color_list is not None:
+            image_array = draw_box(image_array, coord, [patch_size_pix, patch_size_pix], color=color_list[i])
+        else:
+            image_array = draw_box(image_array, coord, [patch_size_pix, patch_size_pix])
+
+    return image_array
+
+
+def draw_box(image_array, coord, shape, color=None):
     image_array = (image_array * 255).astype('uint8')
     pil_image = Image.fromarray(image_array)
-
     draw = Draw(pil_image)
-    draw.rectangle(((coord[0], coord[1]), (coord[0] + shape[0], coord[1] + shape[1])), outline='red')
+
+    if color is not None:
+        color = get_color(color)
+
+    draw.rectangle(((coord[0], coord[1]),
+                    (coord[0] + shape[0], coord[1] + shape[1])),
+                   outline=color if color is not None else 'blue',
+                   width=3 if color is not None else 1)
 
     image_array = copy(array(pil_image))
 
@@ -80,7 +108,7 @@ def crop_patch(image_array, coord, shape):
     return patch
 
 
-def get_scale(image, base_path, get_positions=False):
+def get_scale(image, base_path):
     """
     The scale of an image should have been set manually to 1 cm after the US image scale
     :param base_path: Base directory for meta_data
@@ -92,15 +120,12 @@ def get_scale(image, base_path, get_positions=False):
     file_dir, file_name = get_meta_path(image, base_path, 'scale')
 
     if not exists(join(file_dir, file_name)):
-        return None
+        return None, None
 
     with open(join(file_dir, file_name), newline='') as csv_file:
         data = array(list(csv.reader(csv_file))).astype(int32)
 
-    if get_positions:
-        return [data[0], data[1]]
-
-    return abs(data[0][1] - data[1][1])
+    return abs(data[0][1] - data[1][1]), [data[0], data[1]]
 
 
 def get_meta_path(image, base_path, meta):
@@ -141,7 +166,7 @@ def get_dict_split(image, base_path):
 def get_patches(image, base_path, patch_size):
     ls_patch = []
 
-    scale = get_scale(image, base_path)
+    scale, _ = get_scale(image, base_path)
     patches_coord = get_ls_patch_coord(image, base_path)
 
     if scale is None:

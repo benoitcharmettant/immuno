@@ -5,7 +5,6 @@ from os.path import exists
 from numpy import int32, array
 
 
-
 def my_print(arg, logger=None, on=True):
     if on:
         print(arg)
@@ -28,8 +27,8 @@ def date_to_str(date):
     return date_str
 
 
-# TODO: généraliser l'utilisation de cette fonction
-def get_meta_data(path_to_csv, type=int32):
+def get_meta_data(path_to_csv, type_array=int32):
     with open(path_to_csv, newline='') as csv_file:
-        data = array(list(csv.reader(csv_file))).astype(type)
+        data = array(list(csv.reader(csv_file))).astype(type_array)
+        # TODO: généraliser l'utilisation de cette fonction dans les autres fichiers
     return data
