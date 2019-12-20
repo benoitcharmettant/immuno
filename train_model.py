@@ -2,7 +2,7 @@ from os.path import join
 
 from torch import manual_seed, save
 from torch.utils.data import DataLoader
-from torchvision.transforms import Compose, RandomHorizontalFlip, RandomVerticalFlip
+from torchvision.transforms import Compose, RandomHorizontalFlip, RandomVerticalFlip, ColorJitter
 
 from experiment_manager.logger import Logger
 from experiment_manager.parser import parse_args
@@ -36,6 +36,7 @@ model = model_manager(args.model, (args.resize, args.resize, 3))
 
 transformations = Compose([RandomHorizontalFlip(p=0.5),
                            RandomVerticalFlip(p=0.5),
+                           ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
                            Rotate_90()])
 
 # Loading dataset
