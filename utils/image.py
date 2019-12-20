@@ -51,7 +51,7 @@ def show_box(image_array, coord, shape, save=None):
 
 
 def get_color(value):
-    value = int(255*value)
+    value = int(255 * value)
     color = (value, 255 - value, 0)
     return color
 
@@ -72,18 +72,24 @@ def draw_patches(image_array, patch_list, scale, patch_size, color_list=None):
     return image_array
 
 
-def draw_box(image_array, coord, shape, color=None):
+def draw_box(image_array, coord, shape, color=None, add_label=True):
     image_array = (image_array * 255).astype('uint8')
     pil_image = Image.fromarray(image_array)
     draw = Draw(pil_image)
 
     if color is not None:
-        color = get_color(color)
+        formated_color = get_color(color)
+
+    if color is None:
+        add_label = False
 
     draw.rectangle(((coord[0], coord[1]),
                     (coord[0] + shape[0], coord[1] + shape[1])),
-                   outline=color if color is not None else 'blue',
+                   outline=formated_color if color is not None else 'blue',
                    width=3 if color is not None else 1)
+
+    if add_label:
+        draw.text((coord[0] + 8, coord[1] + 8), str("{:.3f}".format(color)))
 
     image_array = copy(array(pil_image))
 

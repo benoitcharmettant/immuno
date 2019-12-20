@@ -2,6 +2,8 @@ from functools import partial
 from os import remove
 from os.path import join, exists
 from tkinter import Tk, Menu, Frame, Canvas, NW, Label, Button
+from tkinter.filedialog import askdirectory
+
 from PIL import Image, ImageTk
 from numpy import savetxt
 
@@ -95,8 +97,8 @@ class Viewer(object):
         self.base_path = "C:/Users/b_charmettant/data/immuno"
         self.patch_size = patch_size  # in centimeter
 
-        self.show_subset_results = ['train']  # Results for which the colors will be displayed
-        self.results_dir = "C:/Users/b_charmettant/logs/predictions/"
+        self.allowed_subset = None  # Results for which the colors will be displayed
+        self.results_dir = None
         self.result_display_mode = "l1_error"
 
         # Adapt to screen
@@ -149,7 +151,7 @@ class Viewer(object):
         if self.results_dir is not None:
             results_df = get_results_image(self.current_image, self.results_dir)
             if results_df is not None:
-                ls_colors = get_ls_colors(ls_patches_coord, results_df, self.show_subset_results,
+                ls_colors = get_ls_colors(ls_patches_coord, results_df, self.allowed_subset,
                                           mode=self.result_display_mode)
                 image_array = draw_patches(image_array, ls_patches_coord, scale, self.patch_size, color_list=ls_colors)
             else:
@@ -221,11 +223,40 @@ class Menu_Viewer(Menu):
         self.exam_menu = Menu(self, tearoff=False)
         self.add_cascade(label=' Examens ', menu=self.exam_menu)
 
+        self.results_menu = Menu(self, tearoff=False)
+        self.add_cascade(label=' Results ', menu=self.results_menu)
+
+        self.results_menu.add_command(label="Dossier resultats",
+                                      command=self.change_results_dir)
+
+        self.result_showing_subset = Menu(self.results_menu, tearoff=False)
+        self.results_menu.add_cascade(label='Montrer subset... ', menu=self.result_showing_subset)
+
+        self.result_showing_subset.add_command(label="Train",
+                                               command=partial(self.change_subset, ['train']))
+        self.result_showing_subset.add_command(label="Validation",
+                                               command=partial(self.change_subset, ['val']))
+
+
+        self.result_showing_mode = Menu(self.results_menu, tearoff=False)
+        self.results_menu.add_cascade(label='Montrer info... ', menu=self.result_showing_mode)
+
+        self.result_showing_mode.add_command(label="Prédictions",
+                                               command=partial(self.change_mode, 'pred'))
+        self.result_showing_mode.add_command(label="L1 erreur",
+                                               command=partial(self.change_mode, 'l1_error'))
+        self.result_showing_mode.add_command(label="L2 erreur",
+                                             command=partial(self.change_mode, 'l2_error'))
+
+        self.results_menu.add_command(label="Effacer",
+                                      command=self.clear_result_dir)
+
         for prot in self.protocols:
             self.protocol_menu.add_command(label=prot.name,
                                            command=partial(self.change_protocol, prot))
 
         self.change_protocol(self.protocols[0])
+
 
     def change_protocol(self, protocol):
 
@@ -283,6 +314,26 @@ class Menu_Viewer(Menu):
 
         self.change_exam(dict_exams[exams_keys[current_pos]])
 
+    def change_results_dir(self):
+        path = askdirectory()
+        self.viewer.results_dir = path
+        self.viewer.allowed_subset = ['train']
+        self.viewer.result_display_mode = "l1_error"
+        self.viewer.update_display()
+
+    def clear_result_dir(self):
+        self.viewer.results_dir = None
+        self.viewer.allowed_subset = None
+        self.viewer.result_display_mode = None
+        self.viewer.update_display()
+
+    def change_subset(self, allowed_subset):
+        self.viewer.allowed_subset = allowed_subset
+        self.viewer.update_display()
+
+    def change_mode(self, mode):
+        self.viewer.result_display_mode = mode
+        self.viewer.update_display()
 
 def clear_menu(menu):
     nb_children = len(menu._tclCommands)
