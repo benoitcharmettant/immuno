@@ -14,6 +14,7 @@ class Patient(object):
         self.dir = join(self.protocol.dir_path, 'images', self.name)
 
         self.meta_data = self.protocol.get_patient_meta_data(self)
+        self.injections_info = None
 
         self.patient_info = self.get_patient_info()
         self.ls_images_name = listdir(self.dir)
@@ -121,25 +122,26 @@ class Patient(object):
             else:
                 return default_val
 
-    def parse_injections(self):
+    def get_injections_info(self):
+        # Parse the meta data file and fetch injections info
 
         start_i, header = self.find_section_meta_data("injection", return_header=True)
         stop_i = self.find_section_meta_data("biopsie", default_val=len(self.meta_data.values) + 1) - 1
 
-        for i in range(start_i, stop_i):
+        if self.injections_info is not None:
+            return self.injections_info
 
+        lines = []
+
+        for i in range(start_i, stop_i):
             if not isnan(self.meta_data.values[i][0]):
                 cibles = str(self.meta_data.values[i][header['cible']]).replace(' ', '')
                 if not cibles == 'nan':
                     date = self.meta_data.values[i][header['date']]
-
                     cibles = cibles.split(',')
 
-                    for c in cibles:
-                        c = c.replace('_', '')
-                        if c in self.ls_tumors.keys():
-                            self.ls_tumors[c].add_injection(date)
-                        else:
-                            print(self.ls_tumors)
-                            raise IndexError(
-                                '{} wasn\'t found in the patient\'s tumors \n(Patient : {})'.format(c, self.name))
+                    lines.append([date, cibles])
+
+        self.injections_info = lines
+
+        return self.injections_info

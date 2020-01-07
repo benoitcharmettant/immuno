@@ -9,7 +9,7 @@ from numpy import savetxt
 
 from experiment_manager.inspect_results import get_results_image, get_ls_colors
 from utils.tools import mkdir, date_to_str
-from utils.image import draw_box, draw_line, get_meta_path, get_ls_patch_coord, get_scale, draw_patches
+from utils.image import draw_line, get_meta_path, get_ls_patch_coord, get_scale, draw_patches
 
 
 class Image_Viewer(Frame):
@@ -167,7 +167,7 @@ class Viewer(object):
         self.image_viewer.pack()
 
     def get_label_info(self):
-        return "Protocole : {}   -   Patient : {}   -   Examen {}   -   Image : {}   -   Machine : {}".format(
+        return "Protocole : {}   -   Patient : {}   -   Examen {}   -   Image : {}   -   Machine : {}  ".format(
             self.current_image['protocole'],
             self.current_image['patient'],
             date_to_str(self.current_image['date']),

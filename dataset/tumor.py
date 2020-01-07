@@ -12,10 +12,16 @@ class Tumor(object):
         self.patient = patient
         self.loc = localisation
 
-        self.ls_injections = []
+        self.ls_injections = None
         self.ls_images = {}
 
         self.patient.protocol.add_tumor(self)
+
+        injections_info = self.patient.get_injections_info()
+
+        for line in injections_info:
+            if name in line[1]:
+                self.add_injection(line[0])
 
     def new_image(self, path_image, date, machine, dim):
         image = imread(path_image)
@@ -25,20 +31,29 @@ class Tumor(object):
         new_image = {'image': image,
                      'date': date,
                      'machine': machine,
-                     'dim':dim,
+                     'dim': dim,
                      'path': path_image,
                      'nom_image': image_name,
                      'tumor': self.name,
                      'patient': self.patient.name,
                      'protocole': self.patient.protocol.name,
-                     'debut_tt_patient': self.patient.patient_info['debut_tt']}
+                     'debut_tt_patient': self.patient.patient_info['debut_tt'],
+                     'type': 'Injected' if self.is_injected() else 'Control'}
 
         self.ls_images[basename(path_image)] = new_image
 
     def add_injection(self, date):
+        if self.ls_injections is None:  # Initialize ls_injection the first time this function is called
+            self.ls_injections = []
         self.ls_injections.append(date)
 
     def is_injected(self):
+
+        assert self.ls_injections is not None
+
+        # If ls_injections is None, the injections have not yet been parsed
+        # from the meta_data file
+
         if len(self.ls_injections) > 0:
             return True
         return False
@@ -78,6 +93,8 @@ class Tumor(object):
                 exams[image['date']] = [image]
         return exams
 
+    # TODO: this method should not be within the tumor class... Creates confusion, it should be in tools or image
+    #  and take as argument both the image and its tumor.
     def get_last_injection(self, image):
 
         image_date = image['date']
@@ -90,4 +107,3 @@ class Tumor(object):
             if (image_date - injection).days > 0:
                 last_injection = injection
         return last_injection
-
