@@ -12,7 +12,7 @@ class Tumor(object):
         self.patient = patient
         self.loc = localisation
 
-        self.ls_injections = None
+        self.ls_injections = []
         self.ls_images = {}
 
         self.patient.protocol.add_tumor(self)
@@ -43,17 +43,9 @@ class Tumor(object):
         self.ls_images[basename(path_image)] = new_image
 
     def add_injection(self, date):
-        if self.ls_injections is None:  # Initialize ls_injection the first time this function is called
-            self.ls_injections = []
         self.ls_injections.append(date)
 
     def is_injected(self):
-
-        assert self.ls_injections is not None
-
-        # If ls_injections is None, the injections have not yet been parsed
-        # from the meta_data file
-
         if len(self.ls_injections) > 0:
             return True
         return False

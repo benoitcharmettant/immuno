@@ -29,10 +29,6 @@ class Patient(object):
             dim_cible = self.get_dim_cible(image)
             tumor.new_image(join(self.dir, image), date, machine, dim_cible)
 
-        # parsing injection information
-
-        self.parse_injections()
-
     def get_tumor(self, name):
         if name in list(self.ls_tumors):
             return self.ls_tumors[name]
