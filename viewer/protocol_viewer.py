@@ -167,12 +167,14 @@ class Viewer(object):
         self.image_viewer.pack()
 
     def get_label_info(self):
-        return "Protocole : {}   -   Patient : {}   -   Examen {}   -   Image : {}   -   Machine : {}  ".format(
+        return "Protocole : {} | Patient : {} | Examen : {} | Image : {} | Machine : {} | Type : {} | Début tt : {} ".format(
             self.current_image['protocole'],
             self.current_image['patient'],
             date_to_str(self.current_image['date']),
             self.current_image['nom_image'],
-            self.current_image['machine']
+            self.current_image['machine'],
+            self.current_image['type'],
+            date_to_str(self.current_image['debut_tt_patient'])
         )
 
     def set_scale(self, pos1, pos2):

@@ -132,9 +132,12 @@ class Patient(object):
         for i in range(start_i, stop_i):
             if not isnan(self.meta_data.values[i][0]):
                 cibles = str(self.meta_data.values[i][header['cible']]).replace(' ', '')
+                cibles = cibles.replace('_', '')
                 if not cibles == 'nan':
                     date = self.meta_data.values[i][header['date']]
                     cibles = cibles.split(',')
+
+
 
                     lines.append([date, cibles])
 

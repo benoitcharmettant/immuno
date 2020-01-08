@@ -3,11 +3,14 @@ from os.path import join
 from torch import save
 import torch.nn as nn
 from torch.optim import Adam
-from numpy import mean, array, append
+from numpy import mean, append
 
 from utils.tools import my_print
 from utils.metrics import accuracy_from_logits
 from utils.visualisation import plot_training
+
+
+#  TODO: Mettre bien de la régularisation L1 plutôt que l2 !
 
 
 class Model(nn.Module):

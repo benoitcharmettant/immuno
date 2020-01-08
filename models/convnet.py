@@ -43,7 +43,7 @@ class Conv_Net(Model):
         x = self.pool_2(x)
 
         x = x.reshape(batch_size, -1)
-
+ 
         x = self.act(self.fc1(x))
         x = self.act(self.fc2(x))
         y = self.final_activation(self.fc3(x))
