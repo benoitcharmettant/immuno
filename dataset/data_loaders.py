@@ -29,7 +29,7 @@ class Patch_Classifier_Dataset(Dataset):
             self.collect_data(self.ls_protocols[i], allowed_patients_by_protocol[i])
 
         self.patches = array(self.patches)
-        self.patches = self.patches.reshape((-1, 3, 40, 40))
+        self.patches = self.patches.reshape((-1, 3, self.resize, self.resize))
 
     def __getitem__(self, index):
 

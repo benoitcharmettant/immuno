@@ -32,3 +32,13 @@ def get_meta_data(path_to_csv, type_array=int32):
         data = array(list(csv.reader(csv_file))).astype(type_array)
         # TODO: généraliser l'utilisation de cette fonction dans les autres fichiers
     return data
+
+"""
+Function: save a directory to file.
+"""
+def save_dictionary(dic,txt_name):
+    file = open(txt_name,'w',encoding='utf-8')
+    for key,value in dic.items():
+        file.write(key+'\n')
+        file.write(str(value)+'\n')
+    file.close()
