@@ -1,8 +1,9 @@
 from argparse import ArgumentParser
 
+
 def str2bool(v):
     if isinstance(v, bool):
-       return v
+        return v
     if v.lower() in ('yes', 'true', 't', 'y', '1'):
         return True
     elif v.lower() in ('no', 'false', 'f', 'n', '0'):
@@ -10,6 +11,7 @@ def str2bool(v):
     else:
         raise argparse.ArgumentTypeError('Boolean value expected.')
 
+# TODO: change name regul and regul_weight arguments to reg_type and reg_weight for consistency
 def parse_args():
     parser = ArgumentParser(description='Settings for immuno therapy project.')
 
@@ -77,12 +79,26 @@ def parse_args():
                         required=False,
                         help='Weight of L2 regularization during training.')
 
+    parser.add_argument('--regul_type',
+                        type=str,
+                        default='l2',
+                        choices=['l2', 'l1'],
+                        required=False,
+                        help='Defines the type of regularization to apply during training. --regul must be greater '
+                             'than 0 for this option to work.')
+
+    parser.add_argument('--activation',
+                        type=str,
+                        default='relu',
+                        choices=['relu', 'leaky_relu', 'selu', 'sigmoid'],
+                        required=False,
+                        help='Defines the kind of activation layer to apply')
+
     parser.add_argument('--seed',
                         type=str2bool,
                         default=0,
                         required=False,
                         help='Seeding option (0 / 1)')
-
 
     opt = parser.parse_args()
     return opt

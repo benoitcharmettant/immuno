@@ -1,6 +1,6 @@
 from os.path import join
 
-from torch import save
+from torch import save, tensor, norm
 import torch.nn as nn
 from torch.optim import Adam
 from numpy import mean, append
@@ -8,9 +8,6 @@ from numpy import mean, append
 from utils.tools import my_print
 from utils.metrics import accuracy_from_logits
 from utils.visualisation import plot_training
-
-
-#  TODO: Mettre bien de la régularisation L1 plutôt que l2 !
 
 
 class Model(nn.Module):
@@ -23,12 +20,25 @@ class Model(nn.Module):
     def forward(self, x):
         pass
 
-    def get_loss(self, y_pred, y_gt):
+    def get_loss(self, y_pred, y_gt, reg_type='l2', reg_weight=0):
         y_pred = y_pred.reshape((-1))
 
-        return self.loss(y_pred, y_gt)
+        regul = reg_weight * self.get_regularization(reg_type)
 
-    def train_epoch(self, optimizer, train_loader):
+        return self.loss(y_pred, y_gt) + regul
+
+    def get_regularization(self, reg_type):
+        if reg_type == 'l1':
+
+            L1_reg = tensor(0., requires_grad=True).to(self.device)
+            for name, param in self.named_parameters():
+                if 'weight' in name:
+                    L1_reg = L1_reg + norm(param, 1)
+
+            return L1_reg
+        return 0
+
+    def train_epoch(self, optimizer, train_loader, reg_type='l2', reg_weight=0):
 
         self.train()
 
@@ -40,7 +50,7 @@ class Model(nn.Module):
 
             optimizer.zero_grad()
             y_pred = self.forward(x)
-            loss = self.get_loss(y_pred, y)
+            loss = self.get_loss(y_pred, y, reg_type=reg_type, reg_weight=reg_weight)
 
             loss.backward()
             optimizer.step()
@@ -51,22 +61,25 @@ class Model(nn.Module):
             metrics.append(metric)
         return mean(losses), mean(metrics)
 
-    def start_training(self, train_loader, val_loader, epoch=20, lr=0.01, logger=None, regularization=0,
+    def start_training(self, train_loader, val_loader, epoch=20, lr=0.01, logger=None, reg_weight=0, reg_type='l2',
                        random_pred_level=None):
+
         self.to(self.device)
         # TODO: add modular metrics system !
         # TODO: add options for the optimizer !
-        optimizer = Adam(self.parameters(), lr=lr, weight_decay=regularization)
+        # TODO: deal with l2 regularization the same way as it is done for l1
+        optimizer = Adam(self.parameters(), lr=lr, weight_decay=reg_weight if reg_type == 'l2' else 0)
 
         lowest_eval_loss = 1000
 
         for e in range(epoch - 1):
             # train phase
-            loss_train, metric_train = self.train_epoch(optimizer, train_loader)
+            loss_train, metric_train = self.train_epoch(optimizer, train_loader, reg_type=reg_type,
+                                                        reg_weight=reg_weight)
 
             # validation phase
 
-            y_pred_val, y_val, loss_val = self.evaluate(val_loader)
+            y_pred_val, y_val, loss_val = self.evaluate(val_loader, reg_type=reg_type, reg_weight=reg_weight)
             metric_val = accuracy_from_logits(y_pred_val, y_val)
 
             if loss_val < lowest_eval_loss:
@@ -87,7 +100,7 @@ class Model(nn.Module):
             if e > 0 and e % 100 == 0 and logger is not None:
                 plot_training(logger.root_dir, random_pred_level=random_pred_level)
 
-    def evaluate(self, val_loader):
+    def evaluate(self, val_loader, reg_type='l2', reg_weight=0):
         self.eval()
 
         gt = None
@@ -99,7 +112,7 @@ class Model(nn.Module):
             x, y = x.to(self.device), y.to(self.device)
             y_pred = self.forward(x)
 
-            loss = self.get_loss(y_pred.float(), y.float())
+            loss = self.get_loss(y_pred.float(), y.float(), reg_type=reg_type, reg_weight=reg_weight)
             losses.append(loss.cpu().detach().numpy())
 
             y_pred = y_pred.cpu().detach().numpy()

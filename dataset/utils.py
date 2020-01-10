@@ -54,9 +54,7 @@ def random_split(protocol, ratio, overwrite=False):
 
 if __name__ == "__main__":
     data_path = "C:/Users/b_charmettant/data/immuno/"
-    mk = Protocol(data_path, "MK1454")
-    random_split(mk, 0.9, True)
     lytix = Protocol(data_path, "LYTIX")
-    random_split(lytix, 0.9, True)
+    random_split(lytix, 0, True)
 
 

@@ -9,13 +9,14 @@ from dataset.protocol import Protocol
 from utils.image import get_meta_path, get_ls_patch_coord, get_patches, get_dict_split
 from utils.tools import mkdir
 
-path_model = '/home/opis/bcharmme/logs/try/convnet_lr1e-05_e4000_bs30_ps0.4_s40_r0.02/best_model.pth'
+path_model = '/home/opis/bcharmme/logs/brightness_aug_repeat/convnet_lr1e-05_e2000_bs30_ps0.4_s40_r0.02/best_model.pth'
 path_dataset = '/data/bcharmme/immuno/'
 print('Loading model...', end=" ")
 model = load(path_model)
 print('Done !')
 
 patients_mk = ['immuno_{}'.format(i) for i in [3, 6, 7, 10, 16]]
+# patients_mk = ['immuno_{}'.format(i) for i in [24, 26, 30, 32, 33]]
 
 print('Loading data...', end=" ")
 mk = Protocol(path_dataset, 'MK1454')
