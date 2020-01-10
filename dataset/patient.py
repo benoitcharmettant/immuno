@@ -144,3 +144,12 @@ class Patient(object):
         self.injections_info = lines
 
         return self.injections_info
+
+    def get_nb_exams(self):
+        nb_exams = []
+        for tumor_name in self.ls_tumors.keys():
+            tumor = self.ls_tumors[tumor_name]
+            nb_exams.append(tumor.get_nb_exams())
+
+
+        return max(nb_exams)

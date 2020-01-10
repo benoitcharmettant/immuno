@@ -65,3 +65,10 @@ class Protocol(object):
             else:
                 control +=1
         return control, injected
+
+    def get_nb_exam_by_patient(self):
+        exams = {}
+        for patient in self.ls_patients:
+            exams[patient.name] = patient.get_nb_exams()
+
+        return exams

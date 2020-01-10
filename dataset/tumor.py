@@ -85,6 +85,9 @@ class Tumor(object):
                 exams[image['date']] = [image]
         return exams
 
+    def get_nb_exams(self):
+        return len(self.get_exams())
+
     # TODO: this method should not be within the tumor class... Creates confusion, it should be in tools or image
     #  and take as argument both the image and its tumor.
     def get_last_injection(self, image):
