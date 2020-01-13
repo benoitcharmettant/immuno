@@ -16,7 +16,7 @@ def parse_args():
     parser = ArgumentParser(description='Settings for immuno therapy project.')
 
     parser.add_argument('--model',
-                        choices=['convnet'],
+                        choices=['convnet', 'convnet_1'],
                         type=str,
                         required=True,
                         help='Name of the model to be trained.')
