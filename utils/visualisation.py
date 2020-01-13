@@ -47,29 +47,36 @@ def plot_training(path_log_dir, log_file_name="console.log", random_pred_level=N
 
     [train_loss, train_acc, val_loss, val_acc] = parse_log_file(path_log_file, infos)
 
-    weight = 0
+    weight = 0.9
 
-    train_loss = smooth(train_loss, weight)
-    val_loss = smooth(val_loss, weight)
-    train_acc = smooth(train_acc, weight)
-    val_acc = smooth(val_acc, weight)
-
+    train_loss_smooth = smooth(train_loss, weight)
+    val_loss_smooth = smooth(val_loss, weight)
+    train_acc_smooth = smooth(train_acc, weight)
+    val_acc_smooth = smooth(val_acc, weight)
 
     train_epoch = range(len(train_acc))
 
     fig, (ax1, ax2) = plt.subplots(2, 1, sharex='col')
 
-    ax1.plot(train_epoch, train_loss,'b.',label="Train")
-    ax1.plot(train_epoch, val_loss, 'r.',label="Validation")
+    ax1.plot(train_epoch, train_loss, '.', color='#78a7ff', label="Train")
+    ax1.plot(train_epoch, train_loss_smooth, color='#4083ff', label=f"Train (smooth {weight})")
+
+    ax1.plot(train_epoch, val_loss, '.', color='#f5a742', label="Validation")
+    ax1.plot(train_epoch, val_loss_smooth, color='#fcc277', label=f"Validation (smooth {weight}")
     ax1.set(ylabel='Loss')
     ax1.grid(True)
     ax1.legend()
 
-    ax2.plot(train_epoch, train_acc,'b.')
-    ax2.plot(train_epoch, val_acc,'r.')
+    ax2.plot(train_epoch, train_acc, '.', color='#78a7ff')
+    ax2.plot(train_epoch, train_acc_smooth, color='#4083ff')
+
+    ax2.plot(train_epoch, val_acc, '.', color='#f5a742')
+    ax2.plot(train_epoch, val_acc, color='#fcc277')
+
     if random_pred_level is not None:
         random_pred = [random_pred_level for i in range(len(train_acc))]
         ax2.plot(train_epoch, random_pred, linewidth=1, color='grey')
+
     ax2.grid(True)
     ax2.set(xlabel='Training epochs', ylabel='Accuracy')
 

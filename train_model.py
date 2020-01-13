@@ -6,7 +6,7 @@ from torchvision.transforms import Compose, RandomHorizontalFlip, RandomVertical
 
 from experiment_manager.logger import Logger
 from experiment_manager.parser import parse_args
-from models import model_manager, get_activation_layer
+from models import model_manager
 from dataset.data_loaders import Patch_Classifier_Dataset, get_labels_subset
 from dataset.protocol import Protocol
 from utils.tools import my_print
@@ -30,7 +30,7 @@ model = model_manager(args.model, (args.resize, args.resize, 3), activation=args
 
 # Setting up transformation
 
-# TODO: check if Rotate_90() is well functionning
+# TODO: check if Rotate_90() is working correctly
 
 transformations = Compose([RandomHorizontalFlip(p=0.5),
                            RandomVerticalFlip(p=0.5),
@@ -59,7 +59,7 @@ val_size = len(val_dataset)
 train_label_0, train_label_1 = get_labels_subset(train_dataset)
 val_label_0, val_label_1 = get_labels_subset(val_dataset)
 
-my_print("Number of training samples : {}, Validation samples : {}".format(train_size, val_size), logger=logger)
+my_print(f"Number of training samples : {train_size}, Validation samples : {val_size}", logger=logger)
 my_print(
     "Training labels :\t0: {}  -  1: {}  ({:.3f})".format(train_label_0, train_label_1, train_label_1 / train_size),
     logger=logger)
