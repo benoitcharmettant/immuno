@@ -4,17 +4,15 @@ from torch.nn.functional import relu, binary_cross_entropy
 
 
 # the accuracy for the best model can be about 0.76.
-class Conv_Net(Model):
+class Conv_Net_1(Model):
     def __init__(self, input_shape, device="cuda:0", activation=relu):
         super().__init__(input_shape, binary_cross_entropy, device)
-
 
         self.conv1 = nn.Conv2d(self.input_shape[2], 32, kernel_size=5)
         self.batch_norm_1 = nn.BatchNorm2d(32)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=5)
-        self.batch_norm_2= nn.BatchNorm2d(64)
+        self.batch_norm_2 = nn.BatchNorm2d(64)
         self.pool_1 = nn.AvgPool2d(2)
-
 
         self.conv3 = nn.Conv2d(64, 128, kernel_size=3)
         self.batch_norm_3 = nn.BatchNorm2d(128)
