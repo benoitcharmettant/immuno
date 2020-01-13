@@ -61,8 +61,8 @@ def plot_training(path_log_dir, log_file_name="console.log", random_pred_level=N
     ax1.plot(train_epoch, train_loss, '.', color='#78a7ff', label="Train")
     ax1.plot(train_epoch, train_loss_smooth, color='#4083ff', label=f"Train (smooth {weight})")
 
-    ax1.plot(train_epoch, val_loss, '.', color='#f5a742', label="Validation")
-    ax1.plot(train_epoch, val_loss_smooth, color='#fcc277', label=f"Validation (smooth {weight}")
+    ax1.plot(train_epoch, val_loss, '.', color='#ffc061', label="Validation")
+    ax1.plot(train_epoch, val_loss_smooth, color='#ff9900', label=f"Validation (smooth {weight}")
     ax1.set(ylabel='Loss')
     ax1.grid(True)
     ax1.legend()
@@ -70,8 +70,8 @@ def plot_training(path_log_dir, log_file_name="console.log", random_pred_level=N
     ax2.plot(train_epoch, train_acc, '.', color='#78a7ff')
     ax2.plot(train_epoch, train_acc_smooth, color='#4083ff')
 
-    ax2.plot(train_epoch, val_acc, '.', color='#f5a742')
-    ax2.plot(train_epoch, val_acc, color='#fcc277')
+    ax2.plot(train_epoch, val_acc, '.', color='#ffc061')
+    ax2.plot(train_epoch, val_acc_smooth, color='#ff9900')
 
     if random_pred_level is not None:
         random_pred = [random_pred_level for i in range(len(train_acc))]
