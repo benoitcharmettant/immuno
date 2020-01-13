@@ -58,19 +58,19 @@ def plot_training(path_log_dir, log_file_name="console.log", random_pred_level=N
 
     fig, (ax1, ax2) = plt.subplots(2, 1, sharex='col')
 
-    ax1.plot(train_epoch, train_loss, '.', color='#78a7ff', label="Train")
+    ax1.plot(train_epoch, train_loss, '.', color='#4083ff', alpha=0.5, label="Train")
     ax1.plot(train_epoch, train_loss_smooth, color='#4083ff', label=f"Train (smooth {weight})")
 
-    ax1.plot(train_epoch, val_loss, '.', color='#ffc061', label="Validation")
-    ax1.plot(train_epoch, val_loss_smooth, color='#ff9900', label=f"Validation (smooth {weight}")
+    ax1.plot(train_epoch, val_loss, '.', color='#ff9900', alpha=0.5, label="Validation")
+    ax1.plot(train_epoch, val_loss_smooth, color='#ff9900', label=f"Validation (smooth {weight})")
     ax1.set(ylabel='Loss')
     ax1.grid(True)
-    ax1.legend()
+    ax1.legend(prop={'size': 2})
 
-    ax2.plot(train_epoch, train_acc, '.', color='#78a7ff')
+    ax2.plot(train_epoch, train_acc, '.', alpha=0.5, color='#4083ff')
     ax2.plot(train_epoch, train_acc_smooth, color='#4083ff')
 
-    ax2.plot(train_epoch, val_acc, '.', color='#ffc061')
+    ax2.plot(train_epoch, val_acc, '.', alpha=0.5, color='#ff9900')
     ax2.plot(train_epoch, val_acc_smooth, color='#ff9900')
 
     if random_pred_level is not None:
