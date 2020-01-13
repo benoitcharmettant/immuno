@@ -4,21 +4,32 @@ from torch.nn.functional import relu, binary_cross_entropy
 
 
 class Conv_Net(Model):
-    def __init__(self, input_shape, device="cuda:0", activation=relu):
+    def __init__(self, input_shape, device="cuda:0", activation=relu, batch_norm=True, dropout=0):
         super().__init__(input_shape, binary_cross_entropy, device)
 
-        self.batch_norm_1 = nn.BatchNorm2d(3)
+        self.bn = batch_norm
+        self.dropout = dropout
+
+        if self.bn:
+            self.batch_norm_1 = nn.BatchNorm2d(3)
         self.conv1 = nn.Conv2d(self.input_shape[2], 32, kernel_size=5)
+        self.dropout1 = nn.Dropout2d(self.dropout)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=5)
+        self.dropout2 = nn.Dropout2d(self.dropout)
         self.pool_1 = nn.AvgPool2d(2)
 
-        self.batch_norm_2 = nn.BatchNorm2d(64)
+        if self.bn:
+            self.batch_norm_2 = nn.BatchNorm2d(64)
         self.conv3 = nn.Conv2d(64, 128, kernel_size=3)
+        self.dropout3 = nn.Dropout2d(self.dropout)
         self.conv4 = nn.Conv2d(128, 128, kernel_size=3)  # 6*6*128
+        self.dropout4 = nn.Dropout2d(self.dropout)
         self.pool_2 = nn.AvgPool2d(2)
 
         self.fc1 = nn.Linear(128 * 6 * 6, 2048)
+        self.dropout5 = nn.Dropout1d(self.dropout)
         self.fc2 = nn.Linear(2048, 512)
+        self.dropout6 = nn.Dropout1d(self.dropout)
         self.fc3 = nn.Linear(512, 1)
 
         self.act = activation
@@ -30,22 +41,24 @@ class Conv_Net(Model):
 
         x = x.float()
 
-        x = self.batch_norm_1(x)
-        x = self.act(self.conv1(x))
-        x = self.act(self.conv2(x))
+        if self.bn:
+            x = self.batch_norm_1(x)
+        x = self.dropout1(self.act(self.conv1(x)))
+        x = self.dropout2(self.act(self.conv2(x)))
 
         x = self.pool_1(x)
 
-        x = self.batch_norm_2(x)
-        x = self.act(self.conv3(x))
-        x = self.act(self.conv4(x))
+        if self.bn:
+            x = self.batch_norm_2(x)
+        x = self.dropout3(self.act(self.conv3(x)))
+        x = self.dropout4(self.act(self.conv4(x)))
 
         x = self.pool_2(x)
 
         x = x.reshape(batch_size, -1)
  
-        x = self.act(self.fc1(x))
-        x = self.act(self.fc2(x))
+        x = self.dropout5(self.act(self.fc1(x)))
+        x = self.dropout6(self.act(self.fc2(x)))
         y = self.final_activation(self.fc3(x))
 
         return y

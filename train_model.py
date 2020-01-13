@@ -26,7 +26,11 @@ if args.seed:
 
 # Setting up model
 
-model = model_manager(args.model, (args.resize, args.resize, 3), activation=args.activation)
+model = model_manager(args.model,
+                      (args.resize, args.resize, 3),
+                      activation=args.activation,
+                      batch_norm=args.batch_norm,
+                      dropout=args.dropout)
 
 # Setting up transformation
 

@@ -1,4 +1,4 @@
-from argparse import ArgumentParser
+from argparse import ArgumentParser, ArgumentTypeError
 
 
 def str2bool(v):
@@ -9,7 +9,7 @@ def str2bool(v):
     elif v.lower() in ('no', 'false', 'f', 'n', '0'):
         return False
     else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
+        raise ArgumentTypeError('Boolean value expected.')
 
 # TODO: change name regul and regul_weight arguments to reg_type and reg_weight for consistency
 def parse_args():
@@ -36,12 +36,6 @@ def parse_args():
                         nargs='+',
                         help='Name of protocols to load. Eg: MK1454.',
                         required=True)
-
-    parser.add_argument('--val_ratio',
-                        type=int,
-                        default=0.1,
-                        required=False,
-                        help='Ratio of validation images')
 
     parser.add_argument('--lr',
                         type=float,
@@ -93,6 +87,18 @@ def parse_args():
                         choices=['relu', 'leaky_relu', 'selu', 'sigmoid'],
                         required=False,
                         help='Defines the kind of activation layer to apply')
+
+    parser.add_argument('--batch_norm',
+                        type=str2bool,
+                        default=1,
+                        required=False,
+                        help='Apply batch norm or not (0 / 1)')
+
+    parser.add_argument('--dropout',
+                        type=float,
+                        default=0,
+                        required=False,
+                        help='Dropout ratio during training')
 
     parser.add_argument('--seed',
                         type=str2bool,
