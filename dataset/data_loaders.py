@@ -8,11 +8,10 @@ from utils.image import get_patches, get_ls_patch_coord, get_dict_split
 
 
 class Patch_Classifier_Dataset(Dataset):
-    def __init__(self, ls_protocols, allowed_patients_by_protocol, patch_size, resize,
+    def __init__(self, ls_protocols, patch_size, resize,
                  transform=None,
-                 subset='train'):  # patch size in centimeter
-
-        assert len(ls_protocols) == len(allowed_patients_by_protocol)
+                 subset='train',
+                 exclude_patients=[]):  # patch size in centimeter
         assert subset in ['train', 'val']
 
         self.ls_protocols = ls_protocols
@@ -20,13 +19,14 @@ class Patch_Classifier_Dataset(Dataset):
         self.resize = resize
         self.transform = transform
         self.subset = subset
+        self.excluded_patients = exclude_patients
 
         self.patches = []
         self.labels = []
         self.coord = []
 
         for i in range(len(self.ls_protocols)):
-            self.collect_data(self.ls_protocols[i], allowed_patients_by_protocol[i])
+            self.collect_data(self.ls_protocols[i])
 
         self.patches = array(self.patches)
         self.patches = self.patches.reshape((-1, 3, self.resize, self.resize))
@@ -54,9 +54,9 @@ class Patch_Classifier_Dataset(Dataset):
         self.labels.append(label)
         self.coord.append(coord)
 
-    def collect_data(self, protocol, allowed_patients):
+    def collect_data(self, protocol):
         for patient in protocol.ls_patients:
-            if patient.name in allowed_patients:
+            if patient.name not in self.excluded_patients:
                 for tumor in patient.ls_tumors.values():
                     for exam in tumor.get_exams().values():
                         for image in exam:

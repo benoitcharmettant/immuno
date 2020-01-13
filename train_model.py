@@ -42,16 +42,13 @@ transformations = Compose([RandomHorizontalFlip(p=0.5),
 my_print("   *** Loading data ***   ", logger=logger)
 mk = Protocol(data_path, protocols_name[0])
 # lytix = Protocol(data_path, protocols_name[1])
-patients_mk = ['immuno_{}'.format(i) for i in [1, 3, 4, 6, 7, 10, 16, 18]]
-# patients_lytix = ['immuno_{}'.format(i) for i in [22, 24, 26, 33]] dataset = Patch_Classifier_Dataset([mk, lytix],
-# [patients_mk, patients_lytix], args.patch_size, resize=args.resize, transform=transformations)
 
-train_dataset = Patch_Classifier_Dataset([mk], [patients_mk], args.patch_size,
+train_dataset = Patch_Classifier_Dataset([mk], args.patch_size,
                                          resize=args.resize,
                                          transform=transformations,
                                          subset='train')
 
-val_dataset = Patch_Classifier_Dataset([mk], [patients_mk], args.patch_size,
+val_dataset = Patch_Classifier_Dataset([mk], args.patch_size,
                                        resize=args.resize,
                                        transform=transformations,
                                        subset='val')
