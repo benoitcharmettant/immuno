@@ -47,7 +47,7 @@ def plot_training(path_log_dir, log_file_name="console.log", random_pred_level=N
 
     [train_loss, train_acc, val_loss, val_acc] = parse_log_file(path_log_file, infos)
 
-    weight = 0.9
+    weight = 0
 
     train_loss = smooth(train_loss, weight)
     val_loss = smooth(val_loss, weight)
@@ -59,14 +59,14 @@ def plot_training(path_log_dir, log_file_name="console.log", random_pred_level=N
 
     fig, (ax1, ax2) = plt.subplots(2, 1, sharex='col')
 
-    ax1.plot(train_epoch, train_loss, label="Train")
-    ax1.plot(train_epoch, val_loss, label="Validation")
+    ax1.plot(train_epoch, train_loss,'b.',label="Train")
+    ax1.plot(train_epoch, val_loss, 'r.',label="Validation")
     ax1.set(ylabel='Loss')
     ax1.grid(True)
     ax1.legend()
 
-    ax2.plot(train_epoch, train_acc)
-    ax2.plot(train_epoch, val_acc)
+    ax2.plot(train_epoch, train_acc,'b.')
+    ax2.plot(train_epoch, val_acc,'r.')
     if random_pred_level is not None:
         random_pred = [random_pred_level for i in range(len(train_acc))]
         ax2.plot(train_epoch, random_pred, linewidth=1, color='grey')
