@@ -27,9 +27,9 @@ class Conv_Net(Model):
         self.pool_2 = nn.AvgPool2d(2)
 
         self.fc1 = nn.Linear(128 * 6 * 6, 2048)
-        self.dropout5 = nn.Dropout1d(self.dropout)
+        self.dropout5 = nn.Dropout(self.dropout)
         self.fc2 = nn.Linear(2048, 512)
-        self.dropout6 = nn.Dropout1d(self.dropout)
+        self.dropout6 = nn.Dropout(self.dropout)
         self.fc3 = nn.Linear(512, 1)
 
         self.act = activation

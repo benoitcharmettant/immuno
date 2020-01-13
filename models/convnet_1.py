@@ -31,9 +31,9 @@ class Conv_Net_1(Model):
         self.batch_norm_5 = nn.BatchNorm2d(128)
 
         self.fc1 = nn.Linear(128 * 6 * 6, 2048)
-        self.dropout6 = nn.Dropout1d(self.dropout)
+        self.dropout6 = nn.Dropout(self.dropout)
         self.fc2 = nn.Linear(2048, 512)
-        self.dropout7 = nn.Dropout1d(self.dropout)
+        self.dropout7 = nn.Dropout(self.dropout)
         self.fc3 = nn.Linear(512, 1)
 
         self.act = activation
