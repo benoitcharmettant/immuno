@@ -168,7 +168,7 @@ def get_dict_split(image, base_path):
 
     return formatted_data
 
-
+# TODO: make sure the patches don't go out of the image, otherwise it will make problems afterwards
 def get_patches(image, base_path, patch_size):
     ls_patch = []
 
