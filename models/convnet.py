@@ -20,7 +20,7 @@ class Conv_Net(Model):
             self.final_classes = 2
             loss_function = BCELoss
 
-        super().__init__(input_shape, loss_function, device, self.experiment)
+        super().__init__(input_shape, loss_function, device, experiment)
 
         # TODO: remove batch_norm option
         self.bn = batch_norm
