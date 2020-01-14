@@ -11,11 +11,13 @@ from utils.visualisation import plot_training
 
 
 class Model(nn.Module):
-    def __init__(self, input_shape, loss, device="cuda:0"):
+    def __init__(self, input_shape, loss, device="cuda:0", experiment="exp_1"):
         super(Model, self).__init__()
+
         self.input_shape = input_shape
         self.loss = loss
         self.device = device
+        self.experiment = experiment
 
     def forward(self, x):
         pass
@@ -81,7 +83,7 @@ class Model(nn.Module):
             # validation phase
 
             y_pred_val, y_val, loss_val = self.evaluate(val_loader, reg_type=reg_type, reg_weight=reg_weight)
-            metric_val = accuracy_from_logits(y_pred_val, y_val)
+            metrics_val = accuracy_from_logits(y_pred_val, y_val)
 
             if loss_val < lowest_eval_loss:
                 lowest_eval_loss = loss_val
@@ -90,26 +92,56 @@ class Model(nn.Module):
                 save(self, weight_path)
 
                 # save the loss and accuracy for the best model.
-                training_results['best_model_results'] = {"epoch": e + 1, "train_loss": loss_train,
-                                                          "train_accuracy": metric_train,
-                                                          "val_loss": loss_val, "val_accuracy": metric_val}
+                if self.experiment == 'exp_1':
+                    training_results['best_model_results'] = {"epoch": e + 1, "train_loss": loss_train,
+                                                              "train_accuracy": metric_train,
+                                                              "val_loss": loss_val, "val_accuracy": metrics_val}
+                if self.experiment == 'exp_2':
+                    training_results['best_model_results'] = {"epoch": e + 1, "train_loss": loss_train,
+                                                              "train_accuracy": metric_train,
+                                                              "val_loss": loss_val,
+                                                              "val_accuracy_treatment": metrics_val[0],
+                                                              "val_accuracy_injection": metrics_val[1]}
 
-            my_print(
-                'Train Epoch: {}/{}\tLoss: {:.6f} - Acc: {:.3f}\t(Eval Loss: {:.6f} - Acc: {:.3f})'.format(e + 1,
-                                                                                                           epoch,
-                                                                                                           loss_train,
-                                                                                                           metric_train,
-                                                                                                           loss_val,
-                                                                                                           metric_val),
-                logger=logger)
+            if self.experiment == 'exp_1':
+                my_print(
+                    'Train Epoch: {}/{}\tLoss: {:.6f} - Acc: {:.3f}\t'
+                    '(Eval Loss: {:.6f} - Acc: {:.3f})'.format(e + 1,
+                                                               epoch,
+                                                               loss_train,
+                                                               metric_train,
+                                                               loss_val,
+                                                               metrics_val),
+                    logger=logger)
+
+            if self.experiment == 'exp_2':
+                my_print(
+                    'Train Epoch: {}/{}\tLoss: {:.6f} - Acc: {:.3f}\t'
+                    '(Eval Loss: {:.6f} - Acc: {:.3f} - Acc_bis: {:.3f})'.format(e + 1,
+                                                                                 epoch,
+                                                                                 loss_train,
+                                                                                 metric_train,
+                                                                                 loss_val,
+                                                                                 metrics_val[0],
+                                                                                 metrics_val[1]),
+                    logger=logger)
 
             if e > 0 and e % 100 == 0 and logger is not None:
                 plot_training(logger.root_dir, random_pred_level=random_pred_level)
 
         # save the loss and accuracy for the final model.
-        training_results['final_model_results'] = {"epoch": e + 1, "train_loss": loss_train,
-                                                   "train_accuracy": metric_train,
-                                                   "val_loss": loss_val, "val_accuracy": metric_val}
+
+        if self.experiment == 'exp_1':
+            training_results['final_model_results'] = {"epoch": e + 1, "train_loss": loss_train,
+                                                       "train_accuracy": metric_train,
+                                                       "val_loss": loss_val, "val_accuracy": metrics_val}
+
+        if self.experiment == 'exp_2':
+            training_results['final_model_results'] = {"epoch": e + 1, "train_loss": loss_train,
+                                                       "train_accuracy": metric_train,
+                                                       "val_loss": loss_val,
+                                                       "val_accuracy_treatment": metrics_val[0],
+                                                       "val_accuracy_injection": metrics_val[1]}
 
         # save the results in a txt file.
         training_results_file = join(logger.root_dir, "training_results.txt")
