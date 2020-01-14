@@ -6,7 +6,8 @@ log_info = {
     'train_loss': 9,
     'train_acc': 12,
     'val_loss': 15,
-    'val_acc': 18
+    'val_acc': 18,
+    'val_acc_1': 20,
 }
 
 
@@ -43,7 +44,10 @@ def plot_training(path_log_dir, log_file_name="console.log", random_pred_level=N
     path_log_file = join(path_log_dir, log_file_name)
     path_target_file = join(path_log_dir, "training_visualisation.png")
 
+
+
     infos = ['train_loss', 'train_acc', 'val_loss', 'val_acc']
+
 
     [train_loss, train_acc, val_loss, val_acc] = parse_log_file(path_log_file, infos)
 

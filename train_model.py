@@ -25,12 +25,12 @@ if args.seed:
     manual_seed(101)
 
 # Setting up model
-"""
+
 model = model_manager(args.model,
                       (args.resize, args.resize, 3),
                       activation=args.activation,
                       batch_norm=args.batch_norm,
-                      dropout=args.dropout)"""
+                      dropout=args.dropout)
 
 # Setting up transformation
 
@@ -52,7 +52,7 @@ train_dataset = Patch_Classifier_Dataset([mk], args.patch_size,
                                          transform=transformations,
                                          subset='train',
                                          experiment=args.experiment)
-"""
+
 val_dataset = Patch_Classifier_Dataset([mk], args.patch_size,
                                        resize=args.resize,
                                        transform=transformations,
@@ -94,4 +94,4 @@ model.start_training(train_loader, val_loader,
 
 weight_path = join(logger.root_dir, "final_model.pth")
 my_print(f"Saving model in {weight_path}", logger=logger)
-save(model, weight_path)"""
+save(model, weight_path)

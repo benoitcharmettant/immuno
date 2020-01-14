@@ -3,11 +3,11 @@ from models.convnet_1 import Conv_Net_1
 from torch.nn.functional import relu, leaky_relu, selu, sigmoid
 
 
-def model_manager(name, input_size, activation='relu', batch_norm=True, dropout=0):
+def model_manager(name, input_size, activation='relu', batch_norm=True, dropout=0, experiment='exp_1'):
     activation = get_activation_layer(activation)
 
     if name == 'convnet':
-        return Conv_Net(input_size, activation=activation, batch_norm=batch_norm, dropout=dropout)
+        return Conv_Net(input_size, activation=activation, batch_norm=batch_norm, dropout=dropout, experiment=experiment)
     if name == 'convnet_1':
         return Conv_Net_1(input_size, activation=activation, dropout=dropout)
     return None
