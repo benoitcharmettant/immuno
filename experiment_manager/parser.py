@@ -100,6 +100,13 @@ def parse_args():
                         required=False,
                         help='Dropout ratio during training')
 
+    parser.add_argument('--experiment',
+                        type=str,
+                        default='exp_1',
+                        choices=['exp_1', 'exp_2'],
+                        required=False,
+                        help='Describes the kind of experiment to conduct (refer to README.md)')
+
     parser.add_argument('--seed',
                         type=str2bool,
                         default=0,
