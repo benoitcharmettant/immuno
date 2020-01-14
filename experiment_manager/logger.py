@@ -6,11 +6,11 @@ from utils.tools import mkdir
 
 class Logger:
     def __init__(self, path_log, arg):
-
-        dir_name = "{}_lr{}_e{}_bs{}_ps{}_s{}_r{}/".format(arg.model, arg.lr, arg.epoch, arg.batch_size,
-                                                           arg.patch_size,
-                                                           arg.resize,
-                                                           arg.regul)
+        dir_name = "{}_lr{}_e{}_bs{}_ps{}_s{}_r{}_d{}/".format(arg.model, arg.lr, arg.epoch, arg.batch_size,
+                                                               arg.patch_size,
+                                                               arg.resize,
+                                                               arg.regul,
+                                                               arg.dropout)
         path_log = join(path_log, dir_name)
         mkdir(path_log)
         self.root_dir = path_log

@@ -5,7 +5,7 @@ import torch.nn as nn
 from torch.optim import Adam
 from numpy import mean, append
 
-from utils.tools import my_print,save_dictionary
+from utils.tools import my_print, save_dictionary
 from utils.metrics import accuracy_from_logits
 from utils.visualisation import plot_training
 
@@ -72,7 +72,7 @@ class Model(nn.Module):
 
         lowest_eval_loss = 1000
 
-        training_results={}
+        training_results = {}
         for e in range(epoch - 1):
             # train phase
             loss_train, metric_train = self.train_epoch(optimizer, train_loader, reg_type=reg_type,
@@ -89,9 +89,10 @@ class Model(nn.Module):
                 my_print(f"Saving model in {weight_path}", logger=logger)
                 save(self, weight_path)
 
-                #save the loss and accuracy for the best model.
-                training_results['best_model_results']={"epoch":e + 1, "train_loss":loss_train, "train_accuracy":metric_train,
-                                                     "val_loss": loss_val, "val_accuracy":metric_val}
+                # save the loss and accuracy for the best model.
+                training_results['best_model_results'] = {"epoch": e + 1, "train_loss": loss_train,
+                                                          "train_accuracy": metric_train,
+                                                          "val_loss": loss_val, "val_accuracy": metric_val}
 
             my_print(
                 'Train Epoch: {}/{}\tLoss: {:.6f} - Acc: {:.3f}\t(Eval Loss: {:.6f} - Acc: {:.3f})'.format(e + 1,
@@ -106,13 +107,13 @@ class Model(nn.Module):
                 plot_training(logger.root_dir, random_pred_level=random_pred_level)
 
         # save the loss and accuracy for the final model.
-        training_results['final_model_results'] = {"epoch": e + 1, "train_loss": loss_train, "train_accuracy": metric_train,
-                                               "val_loss": loss_val, "val_accuracy": metric_val}
+        training_results['final_model_results'] = {"epoch": e + 1, "train_loss": loss_train,
+                                                   "train_accuracy": metric_train,
+                                                   "val_loss": loss_val, "val_accuracy": metric_val}
 
         # save the results in a txt file.
-        training_results_file=join(logger.root_dir, "training_results.txt")
+        training_results_file = join(logger.root_dir, "training_results.txt")
         save_dictionary(training_results, training_results_file)
-
 
     def evaluate(self, val_loader, reg_type='l2', reg_weight=0):
         self.eval()
