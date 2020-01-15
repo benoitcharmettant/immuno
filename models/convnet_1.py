@@ -1,3 +1,5 @@
+from torch.nn import BCELoss
+
 from models.base_model import Model
 from torch import nn, sigmoid
 from torch.nn.functional import relu, binary_cross_entropy
@@ -5,8 +7,19 @@ from torch.nn.functional import relu, binary_cross_entropy
 
 # the accuracy for the best model can be about 0.76.
 class Conv_Net_1(Model):
-    def __init__(self, input_shape, device="cuda:0", activation=relu, dropout=0):
-        super().__init__(input_shape, binary_cross_entropy, device)
+    def __init__(self, input_shape, device="cuda:0", activation=relu, dropout=0, experiment="exp_1"):
+
+        assert experiment in ["exp_1", 'exp_2']
+
+        # TODO: find a way to use BCEWithLogitsLoss for better numerical stability
+        if experiment == 'exp_1':
+            self.final_classes = 1
+            loss_function = BCELoss()
+        if experiment == 'exp_2':
+            self.final_classes = 2
+            loss_function = BCELoss()
+
+        super().__init__(input_shape, loss_function, device)
 
         self.dropout = dropout
 
@@ -34,7 +47,7 @@ class Conv_Net_1(Model):
         self.dropout6 = nn.Dropout(self.dropout)
         self.fc2 = nn.Linear(2048, 512)
         self.dropout7 = nn.Dropout(self.dropout)
-        self.fc3 = nn.Linear(512, 1)
+        self.fc3 = nn.Linear(512, self.final_classes)
 
         self.act = activation
         self.final_activation = sigmoid

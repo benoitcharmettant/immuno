@@ -29,7 +29,6 @@ if args.seed:
 model = model_manager(args.model,
                       (args.resize, args.resize, 3),
                       activation=args.activation,
-                      batch_norm=args.batch_norm,
                       dropout=args.dropout,
                       experiment=args.experiment)
 

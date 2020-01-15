@@ -8,34 +8,32 @@ from torch.nn.functional import relu, binary_cross_entropy
 #  log file for visualisation
 
 class Conv_Net(Model):
-    def __init__(self, input_shape, device="cuda:0", activation=relu, batch_norm=True, dropout=0, experiment='exp_1'):
+    def __init__(self, input_shape, device="cuda:0", activation=relu, dropout=0, experiment='exp_1'):
 
         assert experiment in ["exp_1", 'exp_2']
 
         # TODO: find a way to use BCEWithLogitsLoss for better numerical stability
         if experiment == 'exp_1':
             self.final_classes = 1
-            loss_function = binary_cross_entropy
+            loss_function = BCELoss()
         if experiment == 'exp_2':
             self.final_classes = 2
             loss_function = BCELoss()
 
         super().__init__(input_shape, loss_function, device, experiment)
 
-        # TODO: remove batch_norm option
-        self.bn = batch_norm
         self.dropout = dropout
 
-        if self.bn:
-            self.batch_norm_1 = nn.BatchNorm2d(3)
+
+        self.batch_norm_1 = nn.BatchNorm2d(3)
         self.conv1 = nn.Conv2d(self.input_shape[2], 32, kernel_size=5)
         self.dropout1 = nn.Dropout2d(self.dropout)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=5)
         self.dropout2 = nn.Dropout2d(self.dropout)
         self.pool_1 = nn.AvgPool2d(2)
 
-        if self.bn:
-            self.batch_norm_2 = nn.BatchNorm2d(64)
+
+        self.batch_norm_2 = nn.BatchNorm2d(64)
         self.conv3 = nn.Conv2d(64, 128, kernel_size=3)
         self.dropout3 = nn.Dropout2d(self.dropout)
         self.conv4 = nn.Conv2d(128, 128, kernel_size=3)  # 6*6*128

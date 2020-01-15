@@ -88,12 +88,6 @@ def parse_args():
                         required=False,
                         help='Defines the kind of activation layer to apply')
 
-    parser.add_argument('--batch_norm',
-                        type=str2bool,
-                        default=1,
-                        required=False,
-                        help='Apply batch norm or not (0 / 1)')
-
     parser.add_argument('--dropout',
                         type=float,
                         default=0,
