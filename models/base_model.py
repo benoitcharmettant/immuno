@@ -23,7 +23,7 @@ class Model(nn.Module):
         pass
 
     def get_loss(self, y_pred, y_gt, reg_type='l2', reg_weight=0):
-        # y_pred = y_pred.reshape((-1))
+        y_pred = y_pred.reshape((-1))
 
         regul = reg_weight * self.get_regularization(reg_type)
 
@@ -52,6 +52,7 @@ class Model(nn.Module):
 
             optimizer.zero_grad()
             y_pred = self.forward(x)
+            
             loss = self.get_loss(y_pred, y, reg_type=reg_type, reg_weight=reg_weight)
 
             loss.backward()
@@ -95,7 +96,7 @@ class Model(nn.Module):
                 if self.experiment == 'exp_1':
                     training_results['best_model_results'] = {"epoch": e + 1, "train_loss": loss_train,
                                                               "train_accuracy": metric_train,
-                                                              "val_loss": loss_val, "val_accuracy": metrics_val}
+                                                              "val_loss": loss_val, "val_accuracy": metrics_val[0]}
                 if self.experiment == 'exp_2':
                     training_results['best_model_results'] = {"epoch": e + 1, "train_loss": loss_train,
                                                               "train_accuracy": metric_train,
@@ -111,7 +112,7 @@ class Model(nn.Module):
                                                                loss_train,
                                                                metric_train,
                                                                loss_val,
-                                                               metrics_val),
+                                                               metrics_val[0]),
                     logger=logger)
 
             if self.experiment == 'exp_2':

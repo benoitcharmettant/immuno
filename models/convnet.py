@@ -2,9 +2,9 @@ from torch.nn import BCELoss
 
 from models.base_model import Model
 from torch import nn, sigmoid
-from torch.nn.functional import relu
+from torch.nn.functional import relu, binary_cross_entropy
 
-# TODO: find a better way to log metrics when we change experiment... Very confused for now. Makes it hard to parse
+# TODO: find a better way to log metrics when we change experiment... It is confusing now. Makes it hard to parse
 #  log file for visualisation
 
 class Conv_Net(Model):
@@ -15,7 +15,7 @@ class Conv_Net(Model):
         # TODO: find a way to use BCEWithLogitsLoss for better numerical stability
         if experiment == 'exp_1':
             self.final_classes = 1
-            loss_function = BCELoss()
+            loss_function = binary_cross_entropy
         if experiment == 'exp_2':
             self.final_classes = 2
             loss_function = BCELoss()

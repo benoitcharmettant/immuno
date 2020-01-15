@@ -26,15 +26,14 @@ class Patch_Classifier_Dataset(Dataset):
         self.excluded_patients = exclude_patients
 
         self.patches = []
-        self.labels = []
+        self.labels = []    
         self.coord = []
 
         for protocol in self.ls_protocols:
             self.collect_data(protocol)
 
-        self.patches = array(self.patches)
-        self.labels = array(self.labels)
-        self.patches = self.patches.reshape((-1, 3, self.resize, self.resize))
+        self.patches = array(self.patches).reshape((-1, 3, self.resize, self.resize))
+        self.labels = array(self.labels).reshape(len(self), -1)   # Label must be of size [nb_patches, nb_classes]
 
     def __getitem__(self, index):
 
@@ -95,5 +94,9 @@ class Patch_Classifier_Dataset(Dataset):
 
 
 def get_labels_subset(dataset):
+    
+    print(dataset.labels.shape)
+    
     nb_label_1 = sum(dataset.labels[:,0])
+        
     return len(dataset) - nb_label_1, nb_label_1
