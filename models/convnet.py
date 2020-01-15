@@ -15,10 +15,10 @@ class Conv_Net(Model):
         # TODO: find a way to use BCEWithLogitsLoss for better numerical stability
         if experiment == 'exp_1':
             self.final_classes = 1
-            loss_function = BCELoss
+            loss_function = BCELoss()
         if experiment == 'exp_2':
             self.final_classes = 2
-            loss_function = BCELoss
+            loss_function = BCELoss()
 
         super().__init__(input_shape, loss_function, device, experiment)
 
@@ -78,5 +78,5 @@ class Conv_Net(Model):
         x = self.dropout5(self.act(self.fc1(x)))
         x = self.dropout6(self.act(self.fc2(x)))
         y = self.final_activation(self.fc3(x))
-
+        
         return y

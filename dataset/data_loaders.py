@@ -33,6 +33,7 @@ class Patch_Classifier_Dataset(Dataset):
             self.collect_data(protocol)
 
         self.patches = array(self.patches)
+        self.labels = array(self.labels)
         self.patches = self.patches.reshape((-1, 3, self.resize, self.resize))
 
     def __getitem__(self, index):
@@ -94,5 +95,5 @@ class Patch_Classifier_Dataset(Dataset):
 
 
 def get_labels_subset(dataset):
-    nb_label_1 = sum(dataset.labels)
+    nb_label_1 = sum(dataset.labels[:,0])
     return len(dataset) - nb_label_1, nb_label_1

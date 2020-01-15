@@ -23,7 +23,7 @@ class Model(nn.Module):
         pass
 
     def get_loss(self, y_pred, y_gt, reg_type='l2', reg_weight=0):
-        y_pred = y_pred.reshape((-1))
+        # y_pred = y_pred.reshape((-1))
 
         regul = reg_weight * self.get_regularization(reg_type)
 
