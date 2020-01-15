@@ -57,15 +57,14 @@ class Conv_Net(Model):
 
         x = x.float()
 
-        if self.bn:
-            x = self.batch_norm_1(x)
+
+        x = self.batch_norm_1(x)
         x = self.dropout1(self.act(self.conv1(x)))
         x = self.dropout2(self.act(self.conv2(x)))
 
         x = self.pool_1(x)
 
-        if self.bn:
-            x = self.batch_norm_2(x)
+        x = self.batch_norm_2(x)
         x = self.dropout3(self.act(self.conv3(x)))
         x = self.dropout4(self.act(self.conv4(x)))
 
