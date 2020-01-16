@@ -3,13 +3,14 @@ from models.convnet_1 import Conv_Net_1
 from torch.nn.functional import relu, leaky_relu, selu, sigmoid
 
 
-def model_manager(name, input_size, activation='relu', dropout=0, experiment='exp_1'):
-    activation = get_activation_layer(activation)
 
-    if name == 'convnet':
-        return Conv_Net(input_size, activation=activation, dropout=dropout, experiment=experiment)
-    if name == 'convnet_1':
-        return Conv_Net_1(input_size, activation=activation, dropout=dropout, experiment=experiment)
+def get_model(args):
+    activation = get_activation_layer(args.activation)
+    input_size = (args.resize, args.resize, 3)
+    if args.model == 'convnet':
+        return Conv_Net(input_size, args.final_classes, activation=activation, dropout=args.dropout)
+    if args.model == 'convnet_1':
+        return Conv_Net_1(input_size, args.final_classes, activation=activation, dropout=args.dropout)
     return None
 
 

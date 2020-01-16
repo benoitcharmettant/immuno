@@ -108,4 +108,15 @@ def parse_args():
                         help='Seeding option (0 / 1)')
 
     opt = parser.parse_args()
+
+    opt.device='cuda:0'
+    if opt.experiment == 'exp_1':
+        opt.final_classes = 1
+        opt.loss_fun = 'bce'
+    elif opt.experiment == 'exp_2':
+        opt.final_classes = 2
+        opt.loss_fun = 'bce'
+    else:
+        raise Exception('Undefined experiment!')
+
     return opt

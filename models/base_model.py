@@ -1,3 +1,4 @@
+from models.__init__ import get_model
 from os.path import join
 
 from torch import save, tensor, norm
@@ -11,17 +12,15 @@ from utils.visualisation import plot_training
 from utils.loss import get_loss_function
 
 
-class Model(nn.Module):
-    def __init__(self, input_shape, loss_type, device="cuda:0",experiment="exp_1"):
-        super(Model, self).__init__()
+class ModelManager(object):
+    def __init__(self, args):
+        super(ModelManager, self).__init__()
+        self.input_shape = (args.resize, args.resize, 3)
+        self.model=get_model(args)
+        self.loss = get_loss_function(args.loss_fun)
+        self.device = args.device
+        self.experiment = args.experiment
 
-        self.input_shape = input_shape
-        self.loss = get_loss_function(loss_type)
-        self.device = device
-        self.experiment = experiment
-
-    def forward(self, x):
-        pass
 
     def get_loss(self, y_pred, y_gt, reg_type='l2', reg_weight=0):
 
@@ -42,7 +41,7 @@ class Model(nn.Module):
 
     def train_epoch(self, optimizer, train_loader, reg_type='l2', reg_weight=0):
 
-        self.train()
+        self.model.train()
 
         losses = []
         metrics = {'accuracy':[],
@@ -52,7 +51,7 @@ class Model(nn.Module):
             x, y = x.to(self.device), y.float().to(self.device)
 
             optimizer.zero_grad()
-            y_pred = self.forward(x)
+            y_pred = self.model.forward(x)
 
             loss = self.get_loss(y_pred.squeeze(), y.squeeze(), reg_type=reg_type, reg_weight=reg_weight)
 
@@ -70,11 +69,11 @@ class Model(nn.Module):
     def start_training(self, train_loader, val_loader, epoch=20, lr=0.01, logger=None, reg_weight=0, reg_type='l2',
                        random_pred_level=None):
 
-        self.to(self.device)
+        self.model.to(self.device)
         # TODO: add modular metrics system !
         # TODO: add options for the optimizer !
         # TODO: deal with l2 regularization the same way as it is done for l1
-        optimizer = Adam(self.parameters(), lr=lr, weight_decay=reg_weight if reg_type == 'l2' else 0)
+        optimizer = Adam(self.model.parameters(), lr=lr, weight_decay=reg_weight if reg_type == 'l2' else 0)
 
         lowest_eval_loss = 1000
 
@@ -93,7 +92,7 @@ class Model(nn.Module):
                 lowest_eval_loss = loss_val
                 weight_path = join(logger.root_dir, "best_model.pth")
                 my_print(f"Saving model in {weight_path}", logger=logger)
-                save(self, weight_path)
+                save(self.model, weight_path)
 
                 # save the loss and accuracy for the best model.
                 training_results['best_model_results'] = {"epoch": e + 1, "train_loss": loss_train,
@@ -128,7 +127,7 @@ class Model(nn.Module):
         save_dictionary(training_results, training_results_file)
 
     def evaluate(self, val_loader, reg_type='l2', reg_weight=0):
-        self.eval()
+        self.model.eval()
 
         gt = None
         preds = None
@@ -137,7 +136,7 @@ class Model(nn.Module):
         for (x, y) in val_loader:
 
             x, y = x.to(self.device), y.to(self.device)
-            y_pred = self.forward(x)
+            y_pred = self.model.forward(x)
             loss = self.get_loss(y_pred.squeeze().float(), y.squeeze().float(), reg_type=reg_type, reg_weight=reg_weight)
             losses.append(loss.cpu().detach().numpy())
 
