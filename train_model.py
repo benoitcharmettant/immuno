@@ -6,11 +6,11 @@ from torchvision.transforms import Compose, RandomHorizontalFlip, RandomVertical
 
 from experiment_manager.logger import Logger
 from experiment_manager.parser import parse_args
-from models import model_manager
 from dataset.data_loaders import Patch_Classifier_Dataset, get_labels_subset
 from dataset.protocol import Protocol
 from utils.tools import my_print
 from utils.augmentation import Rotate_90
+from models.base_model import ModelManager
 
 args = parse_args()
 logger = Logger(args.logs, args)
@@ -26,11 +26,7 @@ if args.seed:
 
 # Setting up model
 
-model = model_manager(args.model,
-                      (args.resize, args.resize, 3),
-                      activation=args.activation,
-                      dropout=args.dropout,
-                      experiment=args.experiment)
+model = ModelManager(args)
 
 # Setting up transformation
 

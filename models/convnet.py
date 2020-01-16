@@ -1,32 +1,18 @@
 from torch.nn import BCELoss
-
-from models.base_model import Model
 from torch import nn, sigmoid
 from torch.nn.functional import relu, binary_cross_entropy
 
 # TODO: find a better way to log metrics when we change experiment... It is confusing now. Makes it hard to parse
 #  log file for visualisation
 
-class Conv_Net(Model):
-    def __init__(self, input_shape, device="cuda:0", activation=relu, dropout=0, experiment='exp_1'):
-
-        assert experiment in ["exp_1", 'exp_2']
-
-        # TODO: find a way to use BCEWithLogitsLoss for better numerical stability
-        if experiment == 'exp_1':
-            self.final_classes = 1
-            loss_function = 'bce'
-        if experiment == 'exp_2':
-            self.final_classes = 2
-            loss_function = 'bce'
-
-        super().__init__(input_shape, loss_function, device, experiment)
-
+class Conv_Net(nn.Module):
+    def __init__(self, input_shape, final_classes, activation=relu, dropout=0):
+        super().__init__()
+        self.input_shape=input_shape
         self.dropout = dropout
 
-
         self.batch_norm_1 = nn.BatchNorm2d(3)
-        self.conv1 = nn.Conv2d(self.input_shape[2], 32, kernel_size=5)
+        self.conv1 = nn.Conv2d(input_shape[2], 32, kernel_size=5)
         self.dropout1 = nn.Dropout2d(self.dropout)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=5)
         self.dropout2 = nn.Dropout2d(self.dropout)
@@ -44,7 +30,7 @@ class Conv_Net(Model):
         self.dropout5 = nn.Dropout(self.dropout)
         self.fc2 = nn.Linear(2048, 512)
         self.dropout6 = nn.Dropout(self.dropout)
-        self.fc3 = nn.Linear(512, self.final_classes)
+        self.fc3 = nn.Linear(512, final_classes)
 
         self.act = activation
 
