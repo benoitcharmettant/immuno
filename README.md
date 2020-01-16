@@ -18,3 +18,6 @@ received Prembroluzimab, we might see an effect on every tumor.
 
 * exp_2 : To classifications are asked here. We consider the same question as in exp_1, but we add a second class for the 
 model to make a distinction between a tumor that has been injected or not (of course the treatment has to have begun).
+
+* exp_3 : Classification taking into account the whole tumor. In this experiment a patch designate a ROI centered around
+the tumor.
