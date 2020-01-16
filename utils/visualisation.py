@@ -5,9 +5,10 @@ import matplotlib.pyplot as plt
 log_info = {
     'train_loss': 9,
     'train_acc': 12,
-    'val_loss': 15,
-    'val_acc': 18,
-    'val_acc_1': 20,
+    'train_auc': 15,
+    'val_loss': 18,
+    'val_acc': 21,
+    'val_auc':24
 }
 
 
@@ -44,12 +45,9 @@ def plot_training(path_log_dir, log_file_name="console.log", random_pred_level=N
     path_log_file = join(path_log_dir, log_file_name)
     path_target_file = join(path_log_dir, "training_visualisation.png")
 
+    infos = ['train_loss', 'train_acc', 'train_auc', 'val_loss', 'val_acc','val_auc']
 
-
-    infos = ['train_loss', 'train_acc', 'val_loss', 'val_acc']
-
-
-    [train_loss, train_acc, val_loss, val_acc] = parse_log_file(path_log_file, infos)
+    [train_loss, train_acc, train_auc,val_loss, val_acc,val_auc] = parse_log_file(path_log_file, infos)
 
     weight = 0.9
 
@@ -57,10 +55,12 @@ def plot_training(path_log_dir, log_file_name="console.log", random_pred_level=N
     val_loss_smooth = smooth(val_loss, weight)
     train_acc_smooth = smooth(train_acc, weight)
     val_acc_smooth = smooth(val_acc, weight)
+    train_auc_smooth = smooth(train_auc, weight)
+    val_auc_smooth = smooth(val_auc, weight)
 
     train_epoch = range(len(train_acc))
 
-    fig, (ax1, ax2) = plt.subplots(2, 1, sharex='col')
+    fig, (ax1, ax2,ax3) = plt.subplots(3, 1, sharex='col')
 
     ax1.plot(train_epoch, train_loss, '.', color='#4083ff', alpha=0.1, label="Train")
     ax1.plot(train_epoch, train_loss_smooth, color='#4083ff', label=f"Train (smooth {weight})")
@@ -77,12 +77,23 @@ def plot_training(path_log_dir, log_file_name="console.log", random_pred_level=N
     ax2.plot(train_epoch, val_acc, '.', alpha=0.1, color='#ff9900')
     ax2.plot(train_epoch, val_acc_smooth, color='#ff9900')
 
+    ax3.plot(train_epoch, train_auc, '.', alpha=0.1, color='#4083ff')
+    ax3.plot(train_epoch, train_auc_smooth, color='#4083ff')
+
+    ax3.plot(train_epoch, val_auc, '.', alpha=0.1, color='#ff9900')
+    ax3.plot(train_epoch, val_auc_smooth, color='#ff9900')
+
     if random_pred_level is not None:
         random_pred = [random_pred_level for i in range(len(train_acc))]
         ax2.plot(train_epoch, random_pred, linewidth=1, color='grey')
 
     ax2.grid(True)
     ax2.set(xlabel='Training epochs', ylabel='Accuracy')
+	
+    random_pred_auc = [0.5 for i in range(len(train_auc))]
+    ax3.plot(train_epoch, random_pred_auc, linewidth=1, color='grey')
+    ax3.grid(True)
+    ax3.set(xlabel='Training epochs', ylabel='AUC')
 
     plt.savefig(path_target_file)
 

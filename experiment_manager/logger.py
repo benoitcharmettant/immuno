@@ -6,7 +6,7 @@ from utils.tools import mkdir
 
 class Logger:
     def __init__(self, path_log, arg):
-        dir_name = "{}_lr{}_e{}_bs{}_ps{}_s{}_r{}_d{}/".format(arg.model, arg.lr, arg.epoch, arg.batch_size,
+        dir_name = "{}_{}_lr{}_e{}_bs{}_ps{}_s{}_r{}_d{}/".format(arg.model,arg.experiment,arg.lr, arg.epoch, arg.batch_size,
                                                                arg.patch_size,
                                                                arg.resize,
                                                                arg.regul,

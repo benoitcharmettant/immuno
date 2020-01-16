@@ -6,16 +6,17 @@ from torch.optim import Adam
 from numpy import mean, append
 
 from utils.tools import my_print, save_dictionary
-from utils.metrics import accuracy_from_logits
+from utils.metrics import calculate_metric,calculate_mean
 from utils.visualisation import plot_training
+from utils.loss import get_loss_function
 
 
 class Model(nn.Module):
-    def __init__(self, input_shape, loss, device="cuda:0", experiment="exp_1"):
+    def __init__(self, input_shape, loss_type, device="cuda:0",experiment="exp_1"):
         super(Model, self).__init__()
 
         self.input_shape = input_shape
-        self.loss = loss
+        self.loss = get_loss_function(loss_type)
         self.device = device
         self.experiment = experiment
 
@@ -23,7 +24,6 @@ class Model(nn.Module):
         pass
 
     def get_loss(self, y_pred, y_gt, reg_type='l2', reg_weight=0):
-        y_pred = y_pred.reshape((-1))
 
         regul = reg_weight * self.get_regularization(reg_type)
 
@@ -45,24 +45,27 @@ class Model(nn.Module):
         self.train()
 
         losses = []
-        metrics = []
+        metrics = {'accuracy':[],
+                   'auc':[]}
 
         for batch_idx, (x, y) in enumerate(train_loader):
             x, y = x.to(self.device), y.float().to(self.device)
 
             optimizer.zero_grad()
             y_pred = self.forward(x)
-            
-            loss = self.get_loss(y_pred, y, reg_type=reg_type, reg_weight=reg_weight)
+
+            loss = self.get_loss(y_pred.squeeze(), y.squeeze(), reg_type=reg_type, reg_weight=reg_weight)
 
             loss.backward()
             optimizer.step()
 
-            metric = accuracy_from_logits(y_pred.cpu().detach().numpy(), y.cpu().detach().numpy())
+            metric = calculate_metric(y_pred.cpu().detach().numpy(), y.cpu().detach().numpy())
 
             losses.append(loss.cpu().item())
-            metrics.append(metric)
-        return mean(losses), mean(metrics)
+            for key in metrics.keys():
+                metrics[key].append(metric[key])
+
+        return mean(losses), calculate_mean(metrics)
 
     def start_training(self, train_loader, val_loader, epoch=20, lr=0.01, logger=None, reg_weight=0, reg_type='l2',
                        random_pred_level=None):
@@ -84,7 +87,7 @@ class Model(nn.Module):
             # validation phase
 
             y_pred_val, y_val, loss_val = self.evaluate(val_loader, reg_type=reg_type, reg_weight=reg_weight)
-            metrics_val = accuracy_from_logits(y_pred_val, y_val)
+            metric_val = calculate_metric(y_pred_val, y_val)
 
             if loss_val < lowest_eval_loss:
                 lowest_eval_loss = loss_val
@@ -93,56 +96,32 @@ class Model(nn.Module):
                 save(self, weight_path)
 
                 # save the loss and accuracy for the best model.
-                if self.experiment == 'exp_1':
-                    training_results['best_model_results'] = {"epoch": e + 1, "train_loss": loss_train,
-                                                              "train_accuracy": metric_train,
-                                                              "val_loss": loss_val, "val_accuracy": metrics_val[0]}
-                if self.experiment == 'exp_2':
-                    training_results['best_model_results'] = {"epoch": e + 1, "train_loss": loss_train,
-                                                              "train_accuracy": metric_train,
-                                                              "val_loss": loss_val,
-                                                              "val_accuracy_treatment": metrics_val[0],
-                                                              "val_accuracy_injection": metrics_val[1]}
+                training_results['best_model_results'] = {"epoch": e + 1, "train_loss": loss_train,
+                                                      "train_metric": metric_train,
+                                                      "val_loss": loss_val, "val_metric": metric_val}
 
-            if self.experiment == 'exp_1':
-                my_print(
-                    'Train Epoch: {}/{}\tLoss: {:.6f} - Acc: {:.3f}\t'
-                    '(Eval Loss: {:.6f} - Acc: {:.3f})'.format(e + 1,
-                                                               epoch,
-                                                               loss_train,
-                                                               metric_train,
-                                                               loss_val,
-                                                               metrics_val[0]),
-                    logger=logger)
 
-            if self.experiment == 'exp_2':
-                my_print(
-                    'Train Epoch: {}/{}\tLoss: {:.6f} - Acc: {:.3f}\t'
-                    '(Eval Loss: {:.6f} - Acc: {:.3f} - Acc_bis: {:.3f})'.format(e + 1,
-                                                                                 epoch,
-                                                                                 loss_train,
-                                                                                 metric_train,
-                                                                                 loss_val,
-                                                                                 metrics_val[0],
-                                                                                 metrics_val[1]),
-                    logger=logger)
+            my_print(
+            'Train Epoch: {}/{}\tLoss: {:.6f} - Acc: {:.3f} - AUC: {:.3f}\t'
+            '(Eval Loss: {:.6f} - Acc: {:.3f} - AUC: {:.3f})'.format(e + 1,
+                                                       epoch,
+                                                       loss_train,
+                                                       metric_train['accuracy']['all'],
+                                                       metric_train['auc']['all'],
+                                                       loss_val,
+                                                       metric_val['accuracy']['all'],
+                                                       metric_val['auc']['all']),
+            logger=logger)
 
             if e > 0 and e % 100 == 0 and logger is not None:
                 plot_training(logger.root_dir, random_pred_level=random_pred_level)
 
         # save the loss and accuracy for the final model.
+        training_results['final_model_results'] = {"epoch": e + 1, "train_loss": loss_train,
+                                                      "train_metric": metric_train,
+                                                      "val_loss": loss_val, "val_metric": metric_val}
 
-        if self.experiment == 'exp_1':
-            training_results['final_model_results'] = {"epoch": e + 1, "train_loss": loss_train,
-                                                       "train_accuracy": metric_train,
-                                                       "val_loss": loss_val, "val_accuracy": metrics_val}
 
-        if self.experiment == 'exp_2':
-            training_results['final_model_results'] = {"epoch": e + 1, "train_loss": loss_train,
-                                                       "train_accuracy": metric_train,
-                                                       "val_loss": loss_val,
-                                                       "val_accuracy_treatment": metrics_val[0],
-                                                       "val_accuracy_injection": metrics_val[1]}
 
         # save the results in a txt file.
         training_results_file = join(logger.root_dir, "training_results.txt")
@@ -159,8 +138,7 @@ class Model(nn.Module):
 
             x, y = x.to(self.device), y.to(self.device)
             y_pred = self.forward(x)
-
-            loss = self.get_loss(y_pred.float(), y.float(), reg_type=reg_type, reg_weight=reg_weight)
+            loss = self.get_loss(y_pred.squeeze().float(), y.squeeze().float(), reg_type=reg_type, reg_weight=reg_weight)
             losses.append(loss.cpu().detach().numpy())
 
             y_pred = y_pred.cpu().detach().numpy()
