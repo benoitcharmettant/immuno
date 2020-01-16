@@ -15,8 +15,8 @@ print('Loading model...', end=" ")
 model = load(path_model)
 print('Done !')
 
-patients_mk = ['immuno_{}'.format(i) for i in [3, 6, 7, 10, 16]]
-# patients_mk = ['immuno_{}'.format(i) for i in [24, 26, 30, 32, 33]]
+patients_mk = ['immuno_{}'.format(i) for i in range(21)]
+patients_lt = ['immuno_{}'.format(i) for i in range(21, 41)]
 
 print('Loading data...', end=" ")
 mk = Protocol(path_dataset, 'MK1454')
