@@ -1,5 +1,6 @@
 from models.convnet import Conv_Net
 from models.convnet_1 import Conv_Net_1
+from models.squeeznet import get_squeeznet
 from torch.nn.functional import relu, leaky_relu, selu, sigmoid
 
 
@@ -11,6 +12,8 @@ def get_model(args):
         return Conv_Net(input_size, args.final_classes, activation=activation, dropout=args.dropout)
     if args.model == 'convnet_1':
         return Conv_Net_1(input_size, args.final_classes, activation=activation, dropout=args.dropout)
+    if args.model == 'squeezenet':
+        return get_squeeznet()
     return None
 
 

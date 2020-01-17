@@ -1,6 +1,5 @@
-from torch.nn import BCELoss
 from torch import nn, sigmoid
-from torch.nn.functional import relu, binary_cross_entropy
+from torch.nn.functional import relu
 
 # TODO: find a better way to log metrics when we change experiment... It is confusing now. Makes it hard to parse
 #  log file for visualisation
