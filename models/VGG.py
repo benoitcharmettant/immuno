@@ -1,10 +1,10 @@
 '''VGG11/13/16/19 in Pytorch.'''
 import torch
 from torch import nn, sigmoid
-from torch.autograd import Variable
 import math
 import numpy as np
 
+from utils.tools import my_print
 
 model_archs = {
     'VGG11': [64, 'M', 128, 'M', 256, 256, 'M', 512, 512, 'M', 512, 512, 'M'],
@@ -75,10 +75,11 @@ def make_layers(model_archs, in_channels, batch_norm=False):
     return nn.Sequential(*layers)
 
 
+
 if __name__=='__main__':
     model=VGG(vgg_name='VGG16', in_channels=3, final_classes=2, init_weights=True, batch_norm=True)
     x=np.random.randint(0, 255, (1,3, 224, 224))
     x=torch.tensor(x).float()
     pred=model.forward(x)
-    print("Numer of parameters: {}".format(sum(p.numel() for p in model.parameters())))
+    my_print("Numer of parameters: {}".format(sum(p.numel() for p in model.parameters())))
 

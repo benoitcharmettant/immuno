@@ -45,11 +45,14 @@ class Patch_Classifier_Dataset(Dataset):
         patch = self.patches[index]
 
         if self.transform:
-            patch = transpose(patch, (1, 2, 0)) * 255
+            nb_channels = patch.shape[0]
+            patch.resize(self.resize, self.resize, nb_channels)
+            patch = patch * 255
             patch = Image.fromarray(patch.astype('uint8'))
             patch_tf = self.transform(patch)
-
-            patch = transpose(array(patch_tf), (2, 0, 1)) / 255
+            patch = array(patch_tf)
+            patch.reshape(nb_channels, self.resize, self.resize)
+            patch = patch / 255
 
         return patch, self.labels[index]
 

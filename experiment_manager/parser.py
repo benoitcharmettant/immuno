@@ -116,6 +116,9 @@ def parse_args():
     elif opt.experiment == 'exp_2':
         opt.final_classes = 2
         opt.loss_fun = 'bce'
+    elif opt.experiment == 'exp_3':
+        opt.final_classes = 2
+        opt.loss_fun = 'bce'
     else:
         raise Exception('Undefined experiment!')
 
