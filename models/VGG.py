@@ -37,6 +37,8 @@ class VGG(nn.Module):
             self._initialize_weights()
 
     def forward(self, x):
+        input_shape = x.shape
+        x = x.reshape((-1, input_shape[3], input_shape[1], input_shape[2]))
         x = x.float()
         x = self.features(x)
         #print("Size of features:", x.shape)
