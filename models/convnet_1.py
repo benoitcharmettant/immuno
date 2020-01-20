@@ -41,7 +41,7 @@ class Conv_Net_1(nn.Module):
 
     def forward(self, x):
         batch_size = x.shape[0]
-        x = x.reshape((-1, self.input_shape[2], self.input_shape[0], self.input_shape[1]))
+        x = x.permute(0, 3, 1, 2)
 
         x = x.float()
         x = self.dropout1(self.act(self.batch_norm_1(self.conv1(x))))

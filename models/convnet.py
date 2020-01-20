@@ -1,13 +1,14 @@
 from torch import nn, sigmoid
 from torch.nn.functional import relu
 
+
 # TODO: find a better way to log metrics when we change experiment... It is confusing now. Makes it hard to parse
 #  log file for visualisation
 
 class Conv_Net(nn.Module):
     def __init__(self, input_shape, final_classes, activation=relu, dropout=0):
         super().__init__()
-        self.input_shape=input_shape
+        self.input_shape = input_shape
         self.dropout = dropout
 
         self.batch_norm_1 = nn.BatchNorm2d(3)
@@ -16,7 +17,6 @@ class Conv_Net(nn.Module):
         self.conv2 = nn.Conv2d(32, 64, kernel_size=5)
         self.dropout2 = nn.Dropout2d(self.dropout)
         self.pool_1 = nn.AvgPool2d(2)
-
 
         self.batch_norm_2 = nn.BatchNorm2d(64)
         self.conv3 = nn.Conv2d(64, 128, kernel_size=3)
@@ -33,15 +33,13 @@ class Conv_Net(nn.Module):
 
         self.act = activation
 
-
         self.final_activation = sigmoid
 
     def forward(self, x):
         batch_size = x.shape[0]
-        x = x.reshape((-1, self.input_shape[2], self.input_shape[0], self.input_shape[1]))
+        x = x.permute(0, 3, 1, 2)
 
         x = x.float()
-
 
         x = self.batch_norm_1(x)
         x = self.dropout1(self.act(self.conv1(x)))
@@ -56,9 +54,9 @@ class Conv_Net(nn.Module):
         x = self.pool_2(x)
 
         x = x.reshape(batch_size, -1)
- 
+
         x = self.dropout5(self.act(self.fc1(x)))
         x = self.dropout6(self.act(self.fc2(x)))
         y = self.final_activation(self.fc3(x))
-        
+
         return y

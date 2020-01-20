@@ -16,7 +16,7 @@ class Patch_Classifier_Dataset(Dataset):
                  experiment='exp_1',  # type of experiment, described in README.md
                  exclude_patients=[]):
 
-        assert subset in ['train', 'val']
+        assert subset in ['train', 'val', None]
         assert experiment in ['exp_1', 'exp_2', 'exp_3']
 
         self.ls_protocols = ls_protocols
@@ -37,7 +37,7 @@ class Patch_Classifier_Dataset(Dataset):
             elif self.experiment in ['exp_3']:
                 self.collect_data_tumor(protocol)  # will gather an ROI centered on the tumor
 
-        self.patches = array(self.patches).reshape((-1, 3, self.resize, self.resize))
+        self.patches = array(self.patches)
         self.labels = array(self.labels).reshape(len(self), -1)  # Label must be of shape (nb_patches, nb_classes)
 
     def __getitem__(self, index):
@@ -45,13 +45,10 @@ class Patch_Classifier_Dataset(Dataset):
         patch = self.patches[index]
 
         if self.transform:
-            nb_channels = patch.shape[0]
-            patch.resize(self.resize, self.resize, nb_channels)
             patch = patch * 255
             patch = Image.fromarray(patch.astype('uint8'))
             patch_tf = self.transform(patch)
             patch = array(patch_tf)
-            patch.reshape(nb_channels, self.resize, self.resize)
             patch = patch / 255
 
         return patch, self.labels[index]
@@ -84,13 +81,15 @@ class Patch_Classifier_Dataset(Dataset):
                         labels = self.get_labels(image)
 
                         for i, patch in enumerate(ls_patches):
-                            if dict_split[f'{ls_coord[i][0]}_{ls_coord[i][1]}'] == self.subset:
+
+                            if self.subset is None:
+                                self.new_patch(patch, labels, ls_coord[i])
+                            elif dict_split[f'{ls_coord[i][0]}_{ls_coord[i][1]}'] == self.subset:
                                 self.new_patch(patch, labels, ls_coord[i])
 
     def collect_data_tumor(self, protocol):
         for tumor in protocol.ls_tumors:
-            # print(tumor.patient.name)
-            # print(tumor.name)
+
             if tumor.patient.name not in self.excluded_patients:
                 for exam in tumor.get_exams().values():
                     for image in exam:
@@ -100,7 +99,6 @@ class Patch_Classifier_Dataset(Dataset):
 
                         if tumor_roi is not None:
                             tumor_roi = array(tumor_roi)
-                            # print(tumor_roi.shape)
                             self.new_patch(tumor_roi, labels, coords_roi)
 
     def format_labels(self, labels):
