@@ -102,6 +102,12 @@ def parse_args():
                         required=False,
                         help='Describes the kind of experiment to conduct (refer to README.md)')
 
+    parser.add_argument('--black_white',
+                        type=str2bool,
+                        default=0,
+                        required=False,
+                        help='Black and white input images (0 / 1)')
+
     parser.add_argument('--seed',
                         type=str2bool,
                         default=0,

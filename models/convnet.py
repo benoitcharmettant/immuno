@@ -10,9 +10,10 @@ class Conv_Net(nn.Module):
         super().__init__()
         self.input_shape = input_shape
         self.dropout = dropout
+        self.in_channel = input_shape[2]
 
-        self.batch_norm_1 = nn.BatchNorm2d(3)
-        self.conv1 = nn.Conv2d(input_shape[2], 32, kernel_size=5)
+        self.batch_norm_1 = nn.BatchNorm2d(self.in_channel)
+        self.conv1 = nn.Conv2d(self.in_channel, kernel_size=5)
         self.dropout1 = nn.Dropout2d(self.dropout)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=5)
         self.dropout2 = nn.Dropout2d(self.dropout)

@@ -1,16 +1,14 @@
-from torch.nn import BCELoss
 from torch import nn, sigmoid
-from torch.nn.functional import relu, binary_cross_entropy
+from torch.nn.functional import relu
 
-
-# the accuracy for the best model can be about 0.76.
 class Conv_Net_1(nn.Module):
     def __init__(self, input_shape, final_classes,  activation=relu, dropout=0):
         super().__init__()
         self.input_shape=input_shape
         self.dropout = dropout
+        self.in_channel = input_shape[2]
 
-        self.conv1 = nn.Conv2d(input_shape[2], 32, kernel_size=5)
+        self.conv1 = nn.Conv2d(self.in_channel, 32, kernel_size=5)
         self.dropout1 = nn.Dropout2d(self.dropout)
         self.batch_norm_1 = nn.BatchNorm2d(32)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=5)
@@ -21,12 +19,12 @@ class Conv_Net_1(nn.Module):
         self.conv3 = nn.Conv2d(64, 128, kernel_size=3)
         self.dropout3 = nn.Dropout2d(self.dropout)
         self.batch_norm_3 = nn.BatchNorm2d(128)
-        self.conv4 = nn.Conv2d(128, 128, kernel_size=3)  # 6*6*128
+        self.conv4 = nn.Conv2d(128, 128, kernel_size=3)  # 6 * 6 * 128
         self.dropout4 = nn.Dropout2d(self.dropout)
         self.batch_norm_4 = nn.BatchNorm2d(128)
         self.pool_2 = nn.AvgPool2d(2)
 
-        self.conv5 = nn.Conv2d(128, 128, kernel_size=1)  # 6*6*128
+        self.conv5 = nn.Conv2d(128, 128, kernel_size=1)  # 6 * 6 * 128
         self.dropout5 = nn.Dropout2d(self.dropout)
         self.batch_norm_5 = nn.BatchNorm2d(128)
 

@@ -1,20 +1,18 @@
-from cv2 import resize
-from numpy import array, transpose
+from cv2 import resize, cvtColor, COLOR_BGR2GRAY
+from numpy import array
 from PIL import Image
 
 from torch.utils.data import Dataset
 
 from utils.image import get_patches, get_ls_patch_coord, get_dict_split, get_tumor_roi
 
-
-# TODO: check dataloader for exp_1 and exp_2
-
 class Patch_Classifier_Dataset(Dataset):
     def __init__(self, ls_protocols, patch_size, resize,  # patch size in centimeter
                  transform=None,
                  subset='train',
                  experiment='exp_1',  # type of experiment, described in README.md
-                 exclude_patients=[]):
+                 exclude_patients=[],
+                 black_white = False):
 
         assert subset in ['train', 'val', None]
         assert experiment in ['exp_1', 'exp_2', 'exp_3']
@@ -26,6 +24,8 @@ class Patch_Classifier_Dataset(Dataset):
         self.subset = subset
         self.experiment = experiment
         self.excluded_patients = exclude_patients
+        self.black_white = black_white
+        self.channels = 1 if self.black_white else 3
 
         self.patches = []
         self.labels = []
@@ -59,6 +59,9 @@ class Patch_Classifier_Dataset(Dataset):
     def new_patch(self, patch, labels, coord):
         patch = resize(patch, (self.resize, self.resize))
         patch = patch[:, :, :3]
+
+        if self.black_white:
+            patch = cvtColor(patch, COLOR_BGR2GRAY)
 
         label = self.format_labels(labels)
 

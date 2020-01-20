@@ -45,13 +45,15 @@ train_dataset = Patch_Classifier_Dataset([mk], args.patch_size,
                                          resize=args.resize,
                                          transform=transformations,
                                          subset='train',
-                                         experiment=args.experiment)
+                                         experiment=args.experiment,
+                                         black_white=args.black_white)
 
 val_dataset = Patch_Classifier_Dataset([mk], args.patch_size,
                                        resize=args.resize,
                                        transform=transformations,
                                        subset='val',
-                                       experiment=args.experiment)
+                                       experiment=args.experiment,
+                                         black_white=args.black_white)
 
 train_size = len(train_dataset)
 val_size = len(val_dataset)
